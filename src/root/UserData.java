@@ -2,14 +2,14 @@ package root;
 
 import com.google.gson.Gson;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.*;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
@@ -18,11 +18,13 @@ public class UserData {
     protected String userName;
     protected String displayName;
     private int sessionID;
+    protected boolean cacheInit;
     public UserData(String userName, String displayName){
         this.userName = userName;
         this.displayName = displayName;
         generateSessionID();
     }
+    public UserData(){}
     public static boolean checkDuplicate(String user){
         try{
             Gson gson = new Gson();
@@ -131,6 +133,8 @@ public class UserData {
         return userName;
     }
     protected void setDisplayName(String displayName){
+        initializeCache();
+
         this.displayName = displayName;
         try{
             Gson gson = new Gson();
@@ -154,5 +158,22 @@ public class UserData {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+    protected void initializeCache(){
+        File cache = new File("src/cache/");
+        System.out.println(Objects.requireNonNull(cache.list()).length);
+        if(Objects.requireNonNull(cache.list()).length == 0){
+            File temp = new File("src/cache/.ignore");
+            try {
+                temp.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        cache = new File("src/cache/" + Screen.user.userName);
+        if(!cache.exists()){
+            cache.mkdirs();
+        }
+        cacheInit = true;
     }
 }

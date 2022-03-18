@@ -18,7 +18,7 @@ import java.util.concurrent.Executors;
 public class LoginScreen {
     protected static Group loginDisplay;
     protected static Group createAccount;
-    public static Group display0(UserData user){
+    public static Group display0(){
         loginDisplay = new Group();
         loginDisplay.setId("loginDisplay");
 
@@ -91,11 +91,11 @@ public class LoginScreen {
             String pass = passField.getText();
             String userN = userField.getText();
             if(!(pass.equals("") || userN.equals(""))) {
-                user.signInAttempt(userField.getText(),passField.getText());
+                Screen.user.signInAttempt(userField.getText(),passField.getText());
                 Init.updateInit(1,saveLogin.isSelected(),userField.getText());
-                user.setDisplayName(UserData.getDisplayName(user.userName));
+                Screen.user.setDisplayName(UserData.getDisplayName(Screen.user.userName));
                 Screen.root.getChildren().remove(loginDisplay);
-                Screen.root.getChildren().add(HomeScreen.display1(user));
+                Screen.root.getChildren().add(HomeScreen.display1());
             }
             if (userN.equals("")) {
                 ErrorHandling task = new ErrorHandling(1);

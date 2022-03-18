@@ -10,12 +10,18 @@ import java.util.Objects;
 
 public class LoadCache {
     protected static Map<?, ?> loadCache(){
-        Map<?, ?> cache = new HashMap<>();
+        Map<String, String> cache = new HashMap<>();
         try{
             Gson gson = new Gson();
             for(int i : getCacheIds()) {
-//                BufferedReader reader = new BufferedReader(new FileReader("src/cache/" + i + ".json"));
-                System.out.println("src/cache/" + i + ".json");
+                BufferedReader reader = new BufferedReader(new FileReader("src/cache/" + i + ".json"));
+
+                Map<?, ?> read = gson.fromJson(reader, Map.class);
+                reader.close();
+
+                for(Map.Entry<?, ?> entry : read.entrySet()){
+                    cache.put(entry.getKey().toString(), entry.getValue().toString());
+                }
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -33,7 +39,10 @@ public class LoadCache {
             write.put("Element", "Note");
         }
         try {
-            File cache = new File("src/cache/" + rawID + ".json");
+            if (!Screen.user.cacheInit) {
+                Screen.user.initializeCache();
+            }
+            File cache = new File("src/cache/" + Screen.user.userName + "/" + rawID + ".json");
 
             BufferedWriter writer = new BufferedWriter(new FileWriter(cache));
 
@@ -45,7 +54,7 @@ public class LoadCache {
     }
     private static ArrayList<Integer> getCacheIds(){
         ArrayList<Integer> ids = new ArrayList<>();
-        File cache = new File("src/cache");
+        File cache = new File("src/cache/" + Screen.user.userName );
         for(String fileN : Objects.requireNonNull(cache.list())){
             ids.add(Integer.parseInt(fileN.substring(0,fileN.length()-5)));
         }

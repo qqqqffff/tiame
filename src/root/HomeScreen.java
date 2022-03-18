@@ -24,12 +24,12 @@ public class HomeScreen {
     protected static int currentElements;
     //TODO: implement icon view versus text view for showing the side menu
     protected static boolean showSideMenu;
-    public static Group display1(UserData user){
+    public static Group display1(){
         Timer.setTimerSelectors(1,5,30,1,5);
         homeDisplay = new Group();
-        generateSettingsDisplay(user);
+        generateSettingsDisplay(Screen.user);
 
-        String userName = user.displayName;
+        String userName = Screen.user.displayName;
         int x, y;
 
         x = Screen.windowWidth - 145;

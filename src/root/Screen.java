@@ -14,7 +14,7 @@ public class Screen extends Application {
     protected static Pane root;
     private String title;
     protected static int windowState;
-    private static UserData user;
+    protected static UserData user;
     protected static boolean saveLogin;
     protected static int windowWidth;
     protected static int windowHeight;
@@ -22,11 +22,10 @@ public class Screen extends Application {
         Screen.windowWidth = 1200;
         Screen.windowHeight = 800;
 
-        LoadCache.loadCache();
-
         root = new Pane();
         String userName = "";
         try{
+            //TODO: move to init class
             BufferedReader reader = new BufferedReader(new FileReader("src/init.json"));
             Gson gson = new Gson();
 
@@ -36,12 +35,11 @@ public class Screen extends Application {
             windowState = 0;
             for(Map.Entry<?, ?> entry : read.entrySet()){
                 if(counter == 0){
-                    Screen.saveLogin = Boolean.parseBoolean(entry.getValue().toString());
+                    saveLogin = Boolean.parseBoolean(entry.getValue().toString());
                 }else if(counter == 1){
                     userName = entry.getValue().toString();
                 }else if(counter == 2){
                     windowState = Integer.parseInt(entry.getValue().toString());
-                    System.out.println(windowState + " setWindowState");
                 }
                 counter++;
             }
@@ -55,14 +53,18 @@ public class Screen extends Application {
         }catch(Exception e){ e.printStackTrace(); }
         title = Init.setTitle(windowState);
 
-        user = new UserData(userName, UserData.getDisplayName(userName));
+        user = new UserData();
+        if(windowState == 1) {
+            user = new UserData(userName, UserData.getDisplayName(userName));
+            user.initializeCache();
+        }
     }
     @Override
     public void start(Stage stage) throws Exception {
         if(windowState == 0) {
-            root.getChildren().add(LoginScreen.display0(user));
+            root.getChildren().add(LoginScreen.display0());
         }else if (windowState == 1){
-            root.getChildren().add(HomeScreen.display1(user));
+            root.getChildren().add(HomeScreen.display1());
             Init.updateInit(1,true, user.userName);
         }
         stage.setScene(new Scene(root, Screen.windowWidth, Screen.windowHeight));
