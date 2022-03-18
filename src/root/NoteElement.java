@@ -1,11 +1,8 @@
 package root;
 
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,9 +17,11 @@ public class NoteElement extends Element{
         taOffset = new Delta(4,39);
         ta = new TextArea();
     }
-    public Group create(double x, double y, Map<String, ?> metaData) {
+    public Group create(double x, double y, Map<String, String> metaData) {
         if(metaData == null) {
             setID();
+        }else{
+            parseMetaData(metaData);
         }
         setSeed(HomeScreen.currentElements);
         element.setId(generateID());
@@ -43,7 +42,7 @@ public class NoteElement extends Element{
         return this.seed + "EN";
     }
     protected String generateSuperID(){ return this.seed + "N"; }
-    public String getID(){
+    public String getElementID(){
         return element.getId();
     }
     public void updatePos(double offsetX, double offsetY) {
@@ -62,37 +61,23 @@ public class NoteElement extends Element{
 
     @Override
     protected Map<String, ?> generateMetaData() {
-        Map<String, String> metaData = new HashMap<>();
+        Map<String, String> metaData = new HashMap<>(getSuperElementData());
 
         metaData.put("TextArea",ta.getText());
-
-        for(Node n : HomeScreen.homeDisplay.getChildren()){
-            if(n.getId() != null){
-                if(n.getId().contains(generateSuperID())){
-                    Group g = (Group) n;
-                    for(Node m : g.getChildren()){
-                        if(m.getId() != null){
-                            if(m.getId().equals("title")){
-                                metaData.put("Title",((Text) m).getText());
-                            }else if(m.getId().equals("saveTitle")){
-                                metaData.put("Title",((TextField) m).getPromptText());
-                            }if(m.getId().equals("base")){
-                                metaData.put("LayoutX",String.valueOf(m.getLayoutX()));
-                                metaData.put("LayoutY",String.valueOf(m.getLayoutY()));
-                            }
-                        }
-                    }
-                    break;
-                }
-            }
-        }
+        metaData.put("ID",String.valueOf(this.ID));
 
         return metaData;
     }
 
     @Override
-    protected void parseMetaData() {
-
+    protected void parseMetaData(Map<String, String> metaData) {
+        for(Map.Entry<String, String> entry : metaData.entrySet()){
+            if(entry.getKey().equals("TextArea")){
+                ta.setText(entry.getValue());
+            }else if(entry.getKey().equals("ID")){
+                this.ID = Integer.parseInt(entry.getValue());
+            }
+        }
     }
     private void setID(){
         this.ID = (int) Math.floor(Math.random() * 10000000);

@@ -65,6 +65,7 @@ public class Screen extends Application {
             root.getChildren().add(LoginScreen.display0());
         }else if (windowState == 1){
             root.getChildren().add(HomeScreen.display1());
+            HomeScreen.loadFromCache(LoadCache.loadCache());
             Init.updateInit(1,true, user.userName);
         }
         stage.setScene(new Scene(root, Screen.windowWidth, Screen.windowHeight));

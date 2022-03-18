@@ -9,7 +9,6 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -47,7 +46,7 @@ public class TimerElement extends Element{
         timerPauseOffset = new Delta(196,40);
     }
     @Override
-    protected Group create(double x, double y, Map<String, ?> metaData) {
+    protected Group create(double x, double y, Map<String, String> metaData) {
         minimizable = true;
         setSeed(HomeScreen.currentElements);
         element.setId(generateID());
@@ -208,7 +207,7 @@ public class TimerElement extends Element{
         return element;
     }
     @Override
-    protected String getID() {
+    protected String getElementID() {
         return element.getId();
     }
     private void setSeed(int seed){
@@ -263,7 +262,7 @@ public class TimerElement extends Element{
     }
 
     @Override
-    protected void parseMetaData() {
+    protected void parseMetaData(Map<String, String> metaData) {
 
     }
 }

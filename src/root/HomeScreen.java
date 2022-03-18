@@ -3,7 +3,6 @@ package root;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
@@ -60,7 +59,7 @@ public class HomeScreen {
         addElement.setFont(new Font(15));
         addElement.setTextFill(Color.GREY);
         addElement.setOnAction(event -> {
-            homeDisplay.getChildren().add(generateElement(25,50,null));
+            homeDisplay.getChildren().add(generateElement(null));
         });
         homeDisplay.getChildren().add(addElement);
 
@@ -106,18 +105,37 @@ public class HomeScreen {
 
         return homeDisplay;
     }
-    private static Group generateElement(double defX, double defY, Map<String, ?> metaData){
+    private static Group generateElement(Map<String, String> metaData){
+        double defX = 25, defY = 50;
+
         Group element = new Group();
         currentElements++;
         String id = String.valueOf(1000+currentElements);
         element.setId(id+"S");
+        String titleTextD = "";
+        String type = "";
 
         final Delta dragDelta = new Delta();
         dragDelta.setDraggable(true);
+
         final boolean[] titleEditable = {true};
         final boolean[] showing = {true};
         final boolean[] updated = {false};
         final boolean[] titleSet = {false};
+
+        NoteElement ne = new NoteElement();
+        TimerElement te = new TimerElement();
+
+        if(metaData != null){
+            defX = parseDataX(metaData);
+            defY = parseDataY(metaData);
+            type = parseDataEle(metaData);
+            titleTextD = parseDataTitle(metaData);
+            updated[0] = true;
+            dragDelta.setDraggable(!parseDataPin(metaData));
+            showing[0] = !parseDataMinimize(metaData);
+        }
+
 
         //TODO: cleanup offsets
         ArrayList<Delta> offsets = new ArrayList<>();
@@ -148,7 +166,12 @@ public class HomeScreen {
         close.setLayoutY(defY + offsets.get(1).getY());
         close.setMaxSize(25,25);
         close.setFont(new Font(12));
-        close.setOnAction(event -> HomeScreen.homeDisplay.getChildren().remove(element));
+        close.setOnAction(event -> {
+            HomeScreen.homeDisplay.getChildren().remove(element);
+            if(element.getId().contains("N")) {
+                LoadCache.clearCache(ne.ID);
+            }
+        });
 
         TextField title = new TextField();
         title.setId("saveTitle");
@@ -162,15 +185,6 @@ public class HomeScreen {
         Button saveTitle = new Button("s");
         Button minimize = new Button("-");
 
-        Button typeN = new Button("Note");
-        NoteElement ne = new NoteElement();
-        Button typeT = new Button("Timer");
-        TimerElement te = new TimerElement();
-        Button typeC = new Button("Clock");
-        Button typeW = new Button("Weather");
-        Button typeL = new Button("List");
-
-
         Rectangle base = new Rectangle(250,350);
         base.setId("base");
         base.setLayoutX(defX);
@@ -178,6 +192,12 @@ public class HomeScreen {
         base.setStroke(Color.BLACK);
         base.setStrokeWidth(2.5);
         base.setFill(Color.WHITE);
+
+        Button typeN = new Button("Note");
+        Button typeT = new Button("Timer");
+        Button typeC = new Button("Clock");
+        Button typeW = new Button("Weather");
+        Button typeL = new Button("List");
 
         base.setOnMouseDragged(event -> {
             if(dragDelta.isDragging()) {
@@ -196,9 +216,9 @@ public class HomeScreen {
                 if(updated[0]) {
                     for(Node n : element.getChildren()){
                         if(n.getId() != null){
-                            if(n.getId().equals(ne.getID())){
+                            if(n.getId().equals(ne.getElementID())){
                                 ne.updatePos(x + xoffset, y + yoffset);
-                            }else if(n.getId().equals(te.getID())){
+                            }else if(n.getId().equals(te.getElementID())){
                                 te.updatePos(x + xoffset, y + yoffset);
                             }
                         }
@@ -264,6 +284,7 @@ public class HomeScreen {
         saveTitle.setFont(new Font(12));
         saveTitle.setOnAction(event -> {
             double x, y;
+            titleSet[0] = true;
             if(titleEditable[0]) {
                 x = base.getLayoutX() + offsets.get(5).getX();
                 y = base.getLayoutY() + offsets.get(5).getY();
@@ -276,6 +297,8 @@ public class HomeScreen {
                 titleText.setLayoutY(y);
                 titleText.setFont(new Font(23));
                 titleText.setFill(Color.BLUE);
+                //TODO: auto-format the editButton
+//                System.out.println(titleText.getLayoutBounds().getWidth());
                 element.getChildren().add(titleText);
 
                 if(updated[0]){
@@ -313,13 +336,30 @@ public class HomeScreen {
             }
         });
 
+        if(dragDelta.isDraggable()){
+            pin.setId("unpinned");
+        }
+        else{
+            pin.setId("pinned");
+        }
         pin.setLayoutX(defX + offsets.get(6).getX());
         pin.setLayoutY(defY + offsets.get(6).getY());
         pin.setMaxSize(25,25);
         pin.setFont(new Font(12));
-        pin.setOnAction(event -> dragDelta.setDraggable(!dragDelta.isDraggable()));
+        pin.setOnAction(event -> {
+            dragDelta.setDraggable(!dragDelta.isDraggable());
+            if(pin.getId().equals("unpinned")) {
+                pin.setId("pinned");
+            }else{
+                pin.setId("unpinned");
+            }
+            if(element.getId().contains("N")) {
+                LoadCache.updateCache(ne.ID + "N", ne.generateMetaData());
+            }
+        });
 
-        minimize.setId("minimize");
+        //TODO: add cache value for minimized
+        minimize.setId("showing");
         minimize.setLayoutX(defX + offsets.get(7).getX());
         minimize.setLayoutY(defY + offsets.get(7).getY());
         minimize.setMaxSize(25,25);
@@ -327,11 +367,11 @@ public class HomeScreen {
         minimize.setOnAction(event -> {
             if(showing[0]){
                 showing[0] = false;
+                minimize.setId("hidden");
 
                 if(element.getId().contains("N")){
                     System.out.println("hiding type: Note");
                     l.setOpacity(0);
-                    //TODO: Implement
                     ne.hideElements();
                     base.setHeight(40);
                 }
@@ -352,8 +392,10 @@ public class HomeScreen {
                     }
                     base.setHeight(40);
                 }
-            }else{
+            }
+            else{
                 showing[0] = true;
+                minimize.setId("showing");
                 l.setOpacity(1);
 
                 if(element.getId().contains("N")){
@@ -377,6 +419,10 @@ public class HomeScreen {
                     }
                     base.setHeight(350);
                 }
+            }
+            System.out.println(showing[0] + ", " + minimize.getId());
+            if(element.getId().contains("N")) {
+                LoadCache.updateCache(ne.ID + "N", ne.generateMetaData());
             }
         });
 
@@ -418,10 +464,28 @@ public class HomeScreen {
         element.getChildren().add(minimize);
         element.getChildren().add(saveTitle);
 
-        element.getChildren().add(typeN);
-        element.getChildren().add(typeT);
+        if(metaData == null) {
+            element.getChildren().add(typeN);
+            element.getChildren().add(typeT);
+        }
+        else{
+            titleSet[0] = true;
+            title.setText(titleTextD);
+            saveTitle.fire();
+            assert type != null;
+            if(type.equals("Note")){
+                element.setId(id+"N");
+                element.getChildren().add(ne.create(defX,defY,metaData));
+            }
+            if(showing[0]){
+                System.out.println("minimizing");
+                minimize.fire();
+            }else{
+                showing[0] = true;
+            }
+        }
 
-        //TODO: /to implement/ - element type selector
+        //TODO: /to implement/ - element type selector *In Progress*
 
 
         return element;
@@ -557,5 +621,60 @@ public class HomeScreen {
                 }
             }
         }
+    }
+    protected static void loadFromCache(Map<String, Map<String, String>> data){
+        for(Map.Entry<String, Map<String, String>> entry : data.entrySet()){
+            System.out.println("Generating Cache ID: " + entry.getKey());
+            homeDisplay.getChildren().add(generateElement(entry.getValue()));
+        }
+    }
+    //TODO: implement error checking (broken cache file)
+    private static double parseDataX(Map<String, String> data){
+        for(Map.Entry<String, String> entry: data.entrySet()){
+            if(entry.getKey().equals("LayoutX")){
+                return Double.parseDouble(entry.getValue());
+            }
+        }
+        return 0;
+    }
+    private static double parseDataY(Map<String, String> data){
+        for(Map.Entry<String, String> entry: data.entrySet()){
+            if(entry.getKey().equals("LayoutY")){
+                return Double.parseDouble(entry.getValue());
+            }
+        }
+        return 0;
+    }
+    private static String parseDataEle(Map<String, String> data){
+        for(Map.Entry<String, String> entry: data.entrySet()){
+            if(entry.getKey().equals("Element")){
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+    private static String parseDataTitle(Map<String, String> data){
+        for(Map.Entry<String, String> entry: data.entrySet()){
+            if(entry.getKey().equals("Title")){
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+    private static boolean parseDataMinimize(Map<String, String> data){
+        for(Map.Entry<String, String> entry: data.entrySet()){
+            if(entry.getKey().equals("Minimize")){
+                return !Boolean.parseBoolean(entry.getValue());
+            }
+        }
+        return false;
+    }
+    private static boolean parseDataPin(Map<String, String> data){
+        for(Map.Entry<String, String> entry: data.entrySet()){
+            if(entry.getKey().equals("Pin")){
+                return Boolean.parseBoolean(entry.getValue());
+            }
+        }
+        return false;
     }
 }

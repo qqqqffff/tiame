@@ -8,20 +8,25 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+//TODO: verify generated id doesnt already exist
 public class LoadCache {
-    protected static Map<?, ?> loadCache(){
-        Map<String, String> cache = new HashMap<>();
+    protected static Map<String, Map<String, String>> loadCache(){
+        Map<String, Map<String, String>> cache = new HashMap<>();
         try{
             Gson gson = new Gson();
             for(int i : getCacheIds()) {
-                BufferedReader reader = new BufferedReader(new FileReader("src/cache/" + i + ".json"));
+                BufferedReader reader = new BufferedReader(new FileReader("src/cache/" + Screen.user.userName + "/" + i + ".json"));
 
                 Map<?, ?> read = gson.fromJson(reader, Map.class);
                 reader.close();
 
+
+                Map<String, String> data = new HashMap<>();
                 for(Map.Entry<?, ?> entry : read.entrySet()){
-                    cache.put(entry.getKey().toString(), entry.getValue().toString());
+                    data.put(entry.getKey().toString(), entry.getValue().toString());
                 }
+
+                cache.put(String.valueOf(i), data);
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -33,7 +38,7 @@ public class LoadCache {
         Map<String, String> write = new HashMap<>();
         for (Map.Entry<String, ?> entry : data.entrySet()) {
             write.put(entry.getKey(), entry.getValue().toString());
-//            System.out.println(id + ", Header: " + entry.getKey() + ", Data: " + entry.getValue().toString());
+//            System.out.println("Header: " + entry.getKey() + ", Data: " + entry.getValue().toString());
         }
         if(id.contains("N")) {
             write.put("Element", "Note");
@@ -59,5 +64,9 @@ public class LoadCache {
             ids.add(Integer.parseInt(fileN.substring(0,fileN.length()-5)));
         }
         return ids;
+    }
+    protected static void clearCache(int ID){
+        File toDelete = new File("src/cache/" + Screen.user.userName + "/" + ID + ".json");
+        toDelete.delete();
     }
 }
