@@ -123,7 +123,7 @@ public class TimerElement extends Element{
 
         //TODO: Stylize to remove borders
         startTimer = new Button();
-        startTimer.setGraphic(ResourceLoader.getResource("start",20,12));
+        startTimer.setGraphic(Screen.resources.getImage("start"));
         startTimer.setId("timeStart");
         startTimer.setFont(new Font(12));
         Init.formatObj(startTimer,x + timerStartOffset.getX(),y + timerStartOffset.getY());
@@ -171,7 +171,7 @@ public class TimerElement extends Element{
 
         //TODO: Stylize to remove borders
         pauseTimer = new Button();
-        pauseTimer.setGraphic(ResourceLoader.getResource("pause",25,12));
+        pauseTimer.setGraphic(Screen.resources.getImage("pause"));
         pauseTimer.setId("timePause");
         pauseTimer.setFont(new Font(12));
         Init.formatObj(pauseTimer,x + timerPauseOffset.getX(),y + timerPauseOffset.getY());

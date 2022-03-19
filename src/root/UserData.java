@@ -159,7 +159,6 @@ public class UserData {
     }
     protected void initializeCache(){
         File cache = new File("src/cache/");
-        System.out.println(Objects.requireNonNull(cache.list()).length);
         if(Objects.requireNonNull(cache.list()).length == 0){
             File temp = new File("src/cache/.ignore");
             try {

@@ -55,16 +55,16 @@ public class HomeScreen {
         Init.formatObj(welcomeText,((Screen.windowWidth - welcomeText.getLayoutBounds().getWidth())/ 2),35);
 
         Button addElement = new Button();
-        addElement.setGraphic(ResourceLoader.getResource("new",35,30));
+        addElement.setGraphic(Screen.resources.getImage("new"));
         x = Screen.windowWidth - ((145 + 30) / 2);
         Init.formatObj(addElement,x,125);
         addElement.setTextFill(Color.GREY);
         addElement.setOnAction(event -> homeDisplay.getChildren().add(generateElement(null)));
         homeDisplay.getChildren().add(addElement);
-        System.out.println(addElement.getLayoutBounds().getWidth());
+//        System.out.println(addElement.getLayoutBounds().getWidth());
 
         Button sideMenu = new Button();
-        sideMenu.setGraphic(ResourceLoader.getResource("menu",30,35));
+        sideMenu.setGraphic(Screen.resources.getImage("menu"));
         sideMenu.setTextFill(Color.GREY);
         sideMenu.setOnAction(event -> {
             EventHandling e = new EventHandling(1);
@@ -74,13 +74,13 @@ public class HomeScreen {
                 sideMenuLine.setId("hidden");
                 sideMenu.setId("hiddenB");
                 addElement.setId("hiddenB");
-                sideMenu.setGraphic(ResourceLoader.getResource("menu_open",30,35));
+                sideMenu.setGraphic(Screen.resources.getImage("menu_open"));
             }else{
                 showSideMenu = false;
                 sideMenuLine.setId("shown");
                 sideMenu.setId("shownB");
                 addElement.setId("shownB");
-                sideMenu.setGraphic(ResourceLoader.getResource("menu",30,35));
+                sideMenu.setGraphic(Screen.resources.getImage("menu"));
             }
             service.execute(e);
             service.shutdown();
@@ -90,7 +90,7 @@ public class HomeScreen {
         Init.formatObj(sideMenu,x,65);
 
         Button settingsMenu = new Button();
-        settingsMenu.setGraphic(ResourceLoader.getResource("settings",35,30));
+        settingsMenu.setGraphic(Screen.resources.getImage("settings"));
         x = Screen.windowWidth - 30;
         Init.formatObj(settingsMenu,x,5);
         settingsMenu.setTextFill(Color.GREY);
@@ -164,10 +164,9 @@ public class HomeScreen {
 
         //TODO: Stylize to remove Borders
         Button close = new Button();
-        close.setGraphic(ResourceLoader.getResource("close",15,12));
+        close.setGraphic(Screen.resources.getImage("close"));
         close.setLayoutX(defX + offsets.get(1).getX());
         close.setLayoutY(defY + offsets.get(1).getY());
-        close.setFont(new Font(12));
         close.setOnAction(event -> {
             HomeScreen.homeDisplay.getChildren().remove(element);
             if(element.getId().contains("N")) {
@@ -279,10 +278,9 @@ public class HomeScreen {
         base.setOnMouseReleased(event -> dragDelta.setDragging(false));
 
         saveTitle.setId("save");
-        saveTitle.setGraphic(ResourceLoader.getResource("edit",15,12));
+        saveTitle.setGraphic(Screen.resources.getImage("edit"));
         saveTitle.setLayoutX(defX + offsets.get(4).getX());
         saveTitle.setLayoutY(defY + offsets.get(4).getY());
-        saveTitle.setMaxSize(25,12);
         saveTitle.setOnAction(event -> {
             double x, y;
             titleSet[0] = true;
@@ -308,7 +306,7 @@ public class HomeScreen {
                     }
                 }
                 titleEditable[0] = false;
-                saveTitle.setGraphic(ResourceLoader.getResource("save",25,12));
+                saveTitle.setGraphic(Screen.resources.getImage("save"));
             }else{
                 x = base.getLayoutX() + offsets.get(2).getX();
                 y = base.getLayoutY() + offsets.get(2).getY();
@@ -333,31 +331,29 @@ public class HomeScreen {
                 title.setText(text);
 
                 titleEditable[0] = true;
-                saveTitle.setGraphic(ResourceLoader.getResource("edit",25,12));
+                saveTitle.setGraphic(Screen.resources.getImage("edit"));
             }
         });
 
         //TODO: Stylize to remove borders
         if(dragDelta.isDraggable()){
             pin.setId("unpinned");
-            pin.setGraphic(ResourceLoader.getResource("pin",15,12));
+            pin.setGraphic(Screen.resources.getImage("pin"));
         }
         else{
             pin.setId("pinned");
-            pin.setGraphic(ResourceLoader.getResource("pinned",15,12));
+            pin.setGraphic(Screen.resources.getImage("pinned"));
         }
         pin.setLayoutX(defX + offsets.get(6).getX());
         pin.setLayoutY(defY + offsets.get(6).getY());
-        pin.setMaxSize(25,12);
-        pin.setFont(new Font(12));
         pin.setOnAction(event -> {
             dragDelta.setDraggable(!dragDelta.isDraggable());
             if(pin.getId().equals("unpinned")) {
                 pin.setId("pinned");
-                pin.setGraphic(ResourceLoader.getResource("pinned",15,12));
+                pin.setGraphic(Screen.resources.getImage("pinned"));
             }else{
                 pin.setId("unpinned");
-                pin.setGraphic(ResourceLoader.getResource("pin",15,12));
+                pin.setGraphic(Screen.resources.getImage("pin"));
             }
             if(element.getId().contains("N")) {
                 LoadCache.updateCache(ne.ID + "N", ne.generateMetaData());
@@ -366,15 +362,14 @@ public class HomeScreen {
 
         //TODO: Stylize to remove borders
         minimize.setId("showing");
-        minimize.setGraphic(ResourceLoader.getResource("minimize",15,12));
+        minimize.setGraphic(Screen.resources.getImage("minimize"));
         minimize.setLayoutX(defX + offsets.get(7).getX());
         minimize.setLayoutY(defY + offsets.get(7).getY());
-        minimize.setMaxSize(25,25);
         minimize.setOnAction(event -> {
             if(showing[0]){
                 showing[0] = false;
                 minimize.setId("hidden");
-                minimize.setGraphic(ResourceLoader.getResource("maximize",15,12));
+                minimize.setGraphic(Screen.resources.getImage("maximize"));
 
                 if(element.getId().contains("N")){
 //                    System.out.println("hiding type: Note");
@@ -403,7 +398,7 @@ public class HomeScreen {
             else{
                 showing[0] = true;
                 minimize.setId("showing");
-                minimize.setGraphic(ResourceLoader.getResource("minimize",15,12));
+                minimize.setGraphic(Screen.resources.getImage("minimize"));
                 l.setOpacity(1);
 
                 if(element.getId().contains("N")){
@@ -435,10 +430,9 @@ public class HomeScreen {
         });
 
         //TODO: Stylize to remove borders
-        typeN.setGraphic(ResourceLoader.getResource("note",25,15));
+        typeN.setGraphic(Screen.resources.getImage("note"));
         typeN.setLayoutX(defX + offsets.get(8).getX());
         typeN.setLayoutY(defY + offsets.get(8).getY());
-        typeN.setMaxHeight(30);
         typeN.setId("selectorN");
         typeN.setOnAction(event -> {
             purgeElements(element);
@@ -449,10 +443,9 @@ public class HomeScreen {
         });
 
         //TODO: Stylize to remove borders
-        typeT.setGraphic(ResourceLoader.getResource("timer",25,15));
+        typeT.setGraphic(Screen.resources.getImage("timer"));
         typeT.setLayoutX(defX + offsets.get(9).getX());
         typeT.setLayoutY(defY + offsets.get(9).getY());
-        typeT.setMaxHeight(30);
         typeT.setId("selectorT");
         typeT.setOnAction(event -> {
             element.setId(id+"T");

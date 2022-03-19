@@ -18,7 +18,9 @@ public class Screen extends Application {
     protected static boolean saveLogin;
     protected static int windowWidth;
     protected static int windowHeight;
+    protected static ResourceLoader resources;
     public Screen(){
+        resources = new ResourceLoader();
         Screen.windowWidth = 1200;
         Screen.windowHeight = 800;
 
@@ -49,7 +51,8 @@ public class Screen extends Application {
                     userName = "New User";
                 }
             }
-        }catch(Exception e){ e.printStackTrace(); }
+        }
+        catch(Exception e){ e.printStackTrace(); }
         title = Init.setTitle(windowState);
 
         user = new UserData();
