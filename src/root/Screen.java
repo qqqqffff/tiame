@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class Screen extends Application {
     protected static Pane root;
-    private String title;
+    private final String title;
     protected static int windowState;
     protected static UserData user;
     protected static boolean saveLogin;
@@ -44,7 +44,6 @@ public class Screen extends Application {
                 counter++;
             }
 
-            System.out.println(saveLogin);
             if(saveLogin) {
                 if(userName.equals("NA")){
                     userName = "New User";
@@ -60,7 +59,7 @@ public class Screen extends Application {
         }
     }
     @Override
-    public void start(Stage stage) throws Exception {
+    public void start(Stage stage){
         if(windowState == 0) {
             root.getChildren().add(LoginScreen.display0());
         }else if (windowState == 1){

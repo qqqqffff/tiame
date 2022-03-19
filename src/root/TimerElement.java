@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+//TODO:
 public class TimerElement extends Element{
     protected ArrayList<Integer> timerSelectors;
     private Text timer;
@@ -120,12 +121,17 @@ public class TimerElement extends Element{
         });
         element.getChildren().add(timeSelectorE);
 
-        //TODO: replace with a triangle go icon
-        startTimer = new Button("Start");
+        //TODO: Stylize to remove borders
+        startTimer = new Button();
+        startTimer.setGraphic(ResourceLoader.getResource("start",20,12));
         startTimer.setId("timeStart");
         startTimer.setFont(new Font(12));
         Init.formatObj(startTimer,x + timerStartOffset.getX(),y + timerStartOffset.getY());
         startTimer.setOnAction(event -> {
+            //TODO: add error handling
+            if(time[0] == 0){
+                time[0] = 60 * 1000;
+            }
             element.getChildren().remove(timeSelectorA);
             element.getChildren().remove(timeSelectorB);
             element.getChildren().remove(timeSelectorC);
@@ -163,8 +169,9 @@ public class TimerElement extends Element{
         });
         element.getChildren().add(startTimer);
 
-        //TODO: replace with a pause icon
-        pauseTimer = new Button("Pause");
+        //TODO: Stylize to remove borders
+        pauseTimer = new Button();
+        pauseTimer.setGraphic(ResourceLoader.getResource("pause",25,12));
         pauseTimer.setId("timePause");
         pauseTimer.setFont(new Font(12));
         Init.formatObj(pauseTimer,x + timerPauseOffset.getX(),y + timerPauseOffset.getY());

@@ -21,9 +21,15 @@ public class HomeScreen {
     private static Group sideMenu;
     private static Group settingsDisplay;
     protected static int currentElements;
-    //TODO: implement icon view versus text view for showing the side menu
     protected static boolean showSideMenu;
+    //TODO: implement icon view versus text view for showing the side menu
     public static Group display1(){
+        ArrayList<Delta> offsets = new ArrayList<>();
+        offsets.add(new Delta(Screen.windowWidth - 145,50)); //Side Menu Line Start 0
+        offsets.add(new Delta(Screen.windowWidth - 145,Screen.windowHeight)); //Side Menu Line End 1
+        offsets.add(new Delta(0,50)); //Header Line Start 2
+        offsets.add(new Delta(Screen.windowWidth,50)); //Header Line End 3
+
         Timer.setTimerSelectors(1,5,30,1,5);
         homeDisplay = new Group();
         generateSettingsDisplay(Screen.user);
@@ -31,42 +37,34 @@ public class HomeScreen {
         String userName = Screen.user.displayName;
         int x, y;
 
-        x = Screen.windowWidth - 145;
-        y = Screen.windowHeight;
-        Line sideMenuLine = new Line(x,50,x,y);
+        Line sideMenuLine = new Line(offsets.get(0).getX(), offsets.get(0).getY(), offsets.get(1).getX(), offsets.get(1).getY());
         sideMenuLine.setStroke(Color.BLACK);
         sideMenuLine.setStrokeWidth(3);
         homeDisplay.getChildren().add(sideMenuLine);
 
-        x = Screen.windowWidth;
-        y = Screen.windowHeight - 750;
-        Line headerLine = new Line(0,y,x,y);
+        Line headerLine = new Line(offsets.get(2).getX(), offsets.get(2).getY(), offsets.get(3).getX(), offsets.get(3).getY());
         headerLine.setStroke(Color.BLACK);
         headerLine.setStrokeWidth(5);
         homeDisplay.getChildren().add(headerLine);
 
         Text welcomeText = new Text("Welcome Back, " + userName + "!");
         welcomeText.setId("TitleText");
-        x = (Screen.windowWidth / 2) - ((welcomeText.getText().length() * 15) / 2);
-        Init.formatObj(welcomeText,x,35);
         welcomeText.setFont(new Font(25));
         welcomeText.setFill(Color.BLACK);
         homeDisplay.getChildren().add(welcomeText);
+        Init.formatObj(welcomeText,((Screen.windowWidth - welcomeText.getLayoutBounds().getWidth())/ 2),35);
 
-        Button addElement = new Button("Add Element");
-        x = Screen.windowWidth - (addElement.getText().length() * 15);
-        Init.formatObj(addElement,x,110);
-        addElement.setFont(new Font(15));
+        Button addElement = new Button();
+        addElement.setGraphic(ResourceLoader.getResource("new",35,30));
+        x = Screen.windowWidth - ((145 + 30) / 2);
+        Init.formatObj(addElement,x,125);
         addElement.setTextFill(Color.GREY);
-        addElement.setOnAction(event -> {
-            homeDisplay.getChildren().add(generateElement(null));
-        });
+        addElement.setOnAction(event -> homeDisplay.getChildren().add(generateElement(null)));
         homeDisplay.getChildren().add(addElement);
+        System.out.println(addElement.getLayoutBounds().getWidth());
 
-        Button sideMenu = new Button("Menu");
-        x = Screen.windowWidth - (sideMenu.getText().length() * 24);
-        Init.formatObj(sideMenu,x,55);
-        sideMenu.setFont(new Font(15));
+        Button sideMenu = new Button();
+        sideMenu.setGraphic(ResourceLoader.getResource("menu",30,35));
         sideMenu.setTextFill(Color.GREY);
         sideMenu.setOnAction(event -> {
             EventHandling e = new EventHandling(1);
@@ -76,22 +74,25 @@ public class HomeScreen {
                 sideMenuLine.setId("hidden");
                 sideMenu.setId("hiddenB");
                 addElement.setId("hiddenB");
+                sideMenu.setGraphic(ResourceLoader.getResource("menu_open",30,35));
             }else{
                 showSideMenu = false;
                 sideMenuLine.setId("shown");
                 sideMenu.setId("shownB");
                 addElement.setId("shownB");
+                sideMenu.setGraphic(ResourceLoader.getResource("menu",30,35));
             }
             service.execute(e);
             service.shutdown();
-            //TODO: ADD ICONS TO BUTTONS
         });
         homeDisplay.getChildren().add(sideMenu);
+        x = Screen.windowWidth - ((145 + 30) / 2);
+        Init.formatObj(sideMenu,x,65);
 
-        Button settingsMenu = new Button("Settings");
-        x = Screen.windowWidth - (settingsMenu.getText().length() * 9) - 2;
-        Init.formatObj(settingsMenu,x,10);
-        settingsMenu.setFont(new Font(15));
+        Button settingsMenu = new Button();
+        settingsMenu.setGraphic(ResourceLoader.getResource("settings",35,30));
+        x = Screen.windowWidth - 30;
+        Init.formatObj(settingsMenu,x,5);
         settingsMenu.setTextFill(Color.GREY);
         settingsMenu.setOnAction(event -> {
             for (Node n : homeDisplay.getChildren()) {
@@ -161,10 +162,11 @@ public class HomeScreen {
         l.setStroke(Color.BLUE);
         l.setStrokeWidth(2.5);
 
-        Button close = new Button("x");
+        //TODO: Stylize to remove Borders
+        Button close = new Button();
+        close.setGraphic(ResourceLoader.getResource("close",15,12));
         close.setLayoutX(defX + offsets.get(1).getX());
         close.setLayoutY(defY + offsets.get(1).getY());
-        close.setMaxSize(25,25);
         close.setFont(new Font(12));
         close.setOnAction(event -> {
             HomeScreen.homeDisplay.getChildren().remove(element);
@@ -173,6 +175,7 @@ public class HomeScreen {
             }
         });
 
+        //TODO: Stylize to remove borders (make big line at the bottom only thing visible)
         TextField title = new TextField();
         title.setId("saveTitle");
         title.setPromptText("Untitled");
@@ -181,9 +184,9 @@ public class HomeScreen {
         title.setLayoutY(defY + offsets.get(2).getY());
         title.setFont(new Font(13));
 
-        Button pin = new Button("p");
-        Button saveTitle = new Button("s");
-        Button minimize = new Button("-");
+        Button pin = new Button();
+        Button saveTitle = new Button();
+        Button minimize = new Button();
 
         Rectangle base = new Rectangle(250,350);
         base.setId("base");
@@ -193,8 +196,8 @@ public class HomeScreen {
         base.setStrokeWidth(2.5);
         base.setFill(Color.WHITE);
 
-        Button typeN = new Button("Note");
-        Button typeT = new Button("Timer");
+        Button typeN = new Button();
+        Button typeT = new Button();
         Button typeC = new Button("Clock");
         Button typeW = new Button("Weather");
         Button typeL = new Button("List");
@@ -273,15 +276,13 @@ public class HomeScreen {
                 dragDelta.setDragging(true);
             }
         });
-        base.setOnMouseReleased(event -> {
-            dragDelta.setDragging(false);
-        });
+        base.setOnMouseReleased(event -> dragDelta.setDragging(false));
 
         saveTitle.setId("save");
+        saveTitle.setGraphic(ResourceLoader.getResource("edit",15,12));
         saveTitle.setLayoutX(defX + offsets.get(4).getX());
         saveTitle.setLayoutY(defY + offsets.get(4).getY());
-        saveTitle.setMaxSize(25,25);
-        saveTitle.setFont(new Font(12));
+        saveTitle.setMaxSize(25,12);
         saveTitle.setOnAction(event -> {
             double x, y;
             titleSet[0] = true;
@@ -306,8 +307,8 @@ public class HomeScreen {
                         LoadCache.updateCache(ne.ID+"N",ne.generateMetaData());
                     }
                 }
-                saveTitle.setText("e");
                 titleEditable[0] = false;
+                saveTitle.setGraphic(ResourceLoader.getResource("save",25,12));
             }else{
                 x = base.getLayoutX() + offsets.get(2).getX();
                 y = base.getLayoutY() + offsets.get(2).getY();
@@ -331,57 +332,63 @@ public class HomeScreen {
                 title.setDisable(false);
                 title.setText(text);
 
-                saveTitle.setText("s");
                 titleEditable[0] = true;
+                saveTitle.setGraphic(ResourceLoader.getResource("edit",25,12));
             }
         });
 
+        //TODO: Stylize to remove borders
         if(dragDelta.isDraggable()){
             pin.setId("unpinned");
+            pin.setGraphic(ResourceLoader.getResource("pin",15,12));
         }
         else{
             pin.setId("pinned");
+            pin.setGraphic(ResourceLoader.getResource("pinned",15,12));
         }
         pin.setLayoutX(defX + offsets.get(6).getX());
         pin.setLayoutY(defY + offsets.get(6).getY());
-        pin.setMaxSize(25,25);
+        pin.setMaxSize(25,12);
         pin.setFont(new Font(12));
         pin.setOnAction(event -> {
             dragDelta.setDraggable(!dragDelta.isDraggable());
             if(pin.getId().equals("unpinned")) {
                 pin.setId("pinned");
+                pin.setGraphic(ResourceLoader.getResource("pinned",15,12));
             }else{
                 pin.setId("unpinned");
+                pin.setGraphic(ResourceLoader.getResource("pin",15,12));
             }
             if(element.getId().contains("N")) {
                 LoadCache.updateCache(ne.ID + "N", ne.generateMetaData());
             }
         });
 
-        //TODO: add cache value for minimized
+        //TODO: Stylize to remove borders
         minimize.setId("showing");
+        minimize.setGraphic(ResourceLoader.getResource("minimize",15,12));
         minimize.setLayoutX(defX + offsets.get(7).getX());
         minimize.setLayoutY(defY + offsets.get(7).getY());
         minimize.setMaxSize(25,25);
-        minimize.setFont(new Font(12));
         minimize.setOnAction(event -> {
             if(showing[0]){
                 showing[0] = false;
                 minimize.setId("hidden");
+                minimize.setGraphic(ResourceLoader.getResource("maximize",15,12));
 
                 if(element.getId().contains("N")){
-                    System.out.println("hiding type: Note");
+//                    System.out.println("hiding type: Note");
                     l.setOpacity(0);
                     ne.hideElements();
                     base.setHeight(40);
                 }
                 else if(element.getId().contains("T") && te.minimizable){
-                    System.out.println("hiding type: Timer");
+//                    System.out.println("hiding type: Timer");
                     te.hideElements();
                     base.setHeight(70);
                 }
                 else if(element.getId().contains("S")){
-                    System.out.println("hiding selectors");
+//                    System.out.println("hiding selectors");
                     l.setOpacity(0);
                     for(Node n : element.getChildren()){
                         if(n.getId() != null){
@@ -396,20 +403,21 @@ public class HomeScreen {
             else{
                 showing[0] = true;
                 minimize.setId("showing");
+                minimize.setGraphic(ResourceLoader.getResource("minimize",15,12));
                 l.setOpacity(1);
 
                 if(element.getId().contains("N")){
-                    System.out.println("displaying type: Note");
+//                    System.out.println("displaying type: Note");
                     ne.showElements();
                     base.setHeight(350);
                 }
                 else if(element.getId().contains("T") && te.minimizable){
-                    System.out.println("displaying type: Timer");
+//                    System.out.println("displaying type: Timer");
                     te.showElements();
                     base.setHeight(100);
                 }
                 else if(element.getId().contains("S")){
-                    System.out.println("displaying selectors");
+//                    System.out.println("displaying selectors");
                     for(Node n : element.getChildren()){
                         if(n.getId() != null){
                             if(n.getId().contains("selector")){
@@ -426,23 +434,25 @@ public class HomeScreen {
             }
         });
 
+        //TODO: Stylize to remove borders
+        typeN.setGraphic(ResourceLoader.getResource("note",25,15));
         typeN.setLayoutX(defX + offsets.get(8).getX());
         typeN.setLayoutY(defY + offsets.get(8).getY());
         typeN.setMaxHeight(30);
-        typeN.setFont(new Font(12));
         typeN.setId("selectorN");
         typeN.setOnAction(event -> {
-            purgeElements(element,"selector");
+            purgeElements(element);
             element.getChildren().add(ne.create(base.getLayoutX(), base.getLayoutY(), metaData));
             element.setId(id+"N");
 
             updated[0] = true;
         });
 
+        //TODO: Stylize to remove borders
+        typeT.setGraphic(ResourceLoader.getResource("timer",25,15));
         typeT.setLayoutX(defX + offsets.get(9).getX());
         typeT.setLayoutY(defY + offsets.get(9).getY());
         typeT.setMaxHeight(30);
-        typeT.setFont(new Font(12));
         typeT.setId("selectorT");
         typeT.setOnAction(event -> {
             element.setId(id+"T");
@@ -450,7 +460,7 @@ public class HomeScreen {
 
             //TODO: implement getting default timer selectors from cache
 
-            purgeElements(element,"selector");
+            purgeElements(element);
 
             element.getChildren().add(te.create(base.getLayoutX(), base.getLayoutY(), metaData));
             updated[0] = true;
@@ -605,17 +615,19 @@ public class HomeScreen {
                 //
                 Init.formatObj(changePW,changePW.getLayoutX(),changePW.getLayoutY()-40);
             }else if(!displayingFields[1]){
-                
+                //to be implemented
+                System.out.println("to be implemented");
             }else{
-
+                //to be implemented
+                System.out.println("to be implemented");
             }
         });
         
     }
-    private static void purgeElements(Group element, String ID){
+    private static void purgeElements(Group element){
         for(int i = 0; i < element.getChildren().size(); i++) {
             if(element.getChildren().get(i).getId() != null){
-                if(element.getChildren().get(i).getId().contains(ID)){
+                if(element.getChildren().get(i).getId().contains("selector")){
                     element.getChildren().remove(i);
                     i--;
                 }
