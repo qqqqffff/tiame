@@ -5,13 +5,13 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -117,7 +117,7 @@ public class HomeScreen {
         currentElements++;
         String id = String.valueOf(1000+currentElements);
         element.setId(id+"S");
-        String titleTextD = "";
+        final String[] titleTextD = {""};
         String type = "";
 
         final Delta dragDelta = new Delta();
@@ -135,7 +135,7 @@ public class HomeScreen {
             defX = parseDataX(metaData);
             defY = parseDataY(metaData);
             type = parseDataEle(metaData);
-            titleTextD = parseDataTitle(metaData);
+            titleTextD[0] = parseDataTitle(metaData);
             updated[0] = true;
             dragDelta.setDraggable(!parseDataPin(metaData));
             showing[0] = !parseDataMinimize(metaData);
@@ -155,6 +155,17 @@ public class HomeScreen {
         offsets.add(new Delta(30,45)); //Type N 8
         offsets.add(new Delta(30,105)); //Type T 9
 
+        Rectangle base = new Rectangle(250,350);
+        base.setId("base");
+        base.setLayoutX(defX);
+        base.setLayoutY(defY);
+        base.setStroke(Color.BLACK);
+        base.setStrokeWidth(2.5);
+        base.setFill(Color.WHITE);
+
+        Button pin = new Button();
+        Button saveTitle = new Button();
+        Button minimize = new Button();
 
         Line l = new Line();
         l.setLayoutX(defX + offsets.get(0).getX());
@@ -178,7 +189,6 @@ public class HomeScreen {
             }
         });
 
-        //TODO: Stylize (make big line at the bottom only thing visible) ~ no idea
         TextField title = new TextField();
         title.setId("saveTitle");
         title.setPromptText("Untitled");
@@ -186,18 +196,61 @@ public class HomeScreen {
         title.setLayoutX(defX + offsets.get(2).getX());
         title.setLayoutY(defY + offsets.get(2).getY());
         title.setFont(new Font(13));
+        title.setOnKeyPressed(event -> {
+            if(event.getCode() == KeyCode.ENTER){
+                if(!titleEditable[0]){
+                    purgeElements(element,"title",true);
+                    saveTitle.setGraphic(Screen.resources.getImage("edit"));
+                }
 
-        Button pin = new Button();
-        Button saveTitle = new Button();
-        Button minimize = new Button();
+                String t = title.getText();
+                if(t.equals("")){
+                    t = title.getPromptText();
+                }
+                double x = base.getLayoutX() + offsets.get(5).getX();
+                double y = base.getLayoutY() + offsets.get(5).getY();
 
-        Rectangle base = new Rectangle(250,350);
-        base.setId("base");
-        base.setLayoutX(defX);
-        base.setLayoutY(defY);
-        base.setStroke(Color.BLACK);
-        base.setStrokeWidth(2.5);
-        base.setFill(Color.WHITE);
+                Text titleText = new Text(t);
+                titleText.setId("title");
+                title.setOpacity(0);
+                title.setDisable(true);
+                titleText.setFont(new Font(20));
+                titleText.setLayoutX(x);
+                titleText.setLayoutY(y);
+                titleText.setFill(Color.BLUE);
+                titleText.setOnMousePressed(event1 -> {
+                    element.getChildren().remove(titleText);
+
+                    double xt = base.getLayoutX() + offsets.get(2).getX();
+                    double yt = base.getLayoutY() + offsets.get(2).getY();
+
+                    title.setLayoutX(xt);
+                    title.setLayoutY(yt);
+                    title.setOpacity(1);
+                    title.setDisable(false);
+                    title.setText(titleTextD[0]);
+
+                    titleEditable[0] = true;
+                    saveTitle.setGraphic(Screen.resources.getImage("edit"));
+
+                    title.requestFocus();
+                });
+                element.getChildren().add(titleText);
+
+                if(updated[0]){
+                    if(element.getId().contains("N")){
+                        LoadCache.updateCache(ne);
+                    }
+                    titleTextD[0] = title.getText();
+                }
+                while((titleText.getLayoutBounds().getWidth() > 140)){
+                    t = titleText.getText().substring(0,titleText.getText().length() - 4) + "...";
+                    titleText.setText(t);
+                }
+                titleEditable[0] = false;
+                saveTitle.setGraphic(Screen.resources.getImage("save"));
+            }
+        });
 
         Button typeN = new Button();
         Button typeT = new Button();
@@ -268,7 +321,7 @@ public class HomeScreen {
                 }
                 if(titleSet[0]){
                     if(element.getId().contains("N")) {
-                        LoadCache.updateCache(ne.ID+"N",ne.generateMetaData());
+                        LoadCache.updateCache(ne);
                     }
                 }
             }
@@ -293,50 +346,60 @@ public class HomeScreen {
                 x = base.getLayoutX() + offsets.get(5).getX();
                 y = base.getLayoutY() + offsets.get(5).getY();
 
-                Text titleText = new Text(title.getText());
+                String t = title.getText();
+                Text titleText = new Text(t);
                 titleText.setId("title");
-                title.setOpacity(0);
-                title.setDisable(true);
+                Init.hideElement(title);
                 titleText.setLayoutX(x);
                 titleText.setLayoutY(y);
                 titleText.setFont(new Font(20));
                 titleText.setFill(Color.BLUE);
-                //TODO: auto-format the editButton
-//                System.out.println(titleText.getLayoutBounds().getWidth());
-                element.getChildren().add(titleText);
+                titleText.setOnMousePressed(event1 -> {
+                    element.getChildren().remove(titleText);
 
+                    double xt = base.getLayoutX() + offsets.get(2).getX();
+                    double yt = base.getLayoutY() + offsets.get(2).getY();
+
+                    title.setLayoutX(xt);
+                    title.setLayoutY(yt);
+                    title.setOpacity(1);
+                    title.setDisable(false);
+                    title.setText(titleTextD[0]);
+
+                    titleEditable[0] = true;
+                    saveTitle.setGraphic(Screen.resources.getImage("edit"));
+
+                    title.requestFocus();
+                });
                 if(updated[0]){
                     if(element.getId().contains("N")) {
-                        LoadCache.updateCache(ne.ID+"N",ne.generateMetaData());
+                        LoadCache.updateCache(ne);
                     }
+                    titleTextD[0] = t;
                 }
+
+                element.getChildren().add(titleText);
+                while((titleText.getLayoutBounds().getWidth() > 140)){
+                    t = titleText.getText().substring(0,titleText.getText().length() - 4) + "...";
+                    titleText.setText(t);
+                }
+
                 titleEditable[0] = false;
                 saveTitle.setGraphic(Screen.resources.getImage("save"));
             }else{
                 x = base.getLayoutX() + offsets.get(2).getX();
                 y = base.getLayoutY() + offsets.get(2).getY();
 
-                String text = "";
-
-                for(Node n : element.getChildren()){
-                    if(n.getId() != null){
-                        if(n.getId().equals("title")){
-                            Text t = (Text) n;
-                            text = t.getText();
-                            element.getChildren().remove(n);
-                            break;
-                        }
-                    }
-                }
+                purgeElements(element,"title",true);
 
                 title.setLayoutX(x);
                 title.setLayoutY(y);
-                title.setOpacity(1);
-                title.setDisable(false);
-                title.setText(text);
+                Init.showElement(title);
+                title.setText(titleTextD[0]);
 
                 titleEditable[0] = true;
                 saveTitle.setGraphic(Screen.resources.getImage("edit"));
+                title.requestFocus();
             }
         });
 
@@ -360,7 +423,7 @@ public class HomeScreen {
                 pin.setGraphic(Screen.resources.getImage("pin"));
             }
             if(element.getId().contains("N")) {
-                LoadCache.updateCache(ne.ID + "N", ne.generateMetaData());
+                LoadCache.updateCache(ne);
             }
         });
 
@@ -428,7 +491,7 @@ public class HomeScreen {
             }
             System.out.println(showing[0] + ", " + minimize.getId());
             if(element.getId().contains("N")) {
-                LoadCache.updateCache(ne.ID + "N", ne.generateMetaData());
+                LoadCache.updateCache(ne);
             }
         });
 
@@ -437,7 +500,7 @@ public class HomeScreen {
         typeN.setLayoutY(defY + offsets.get(8).getY());
         typeN.setId("selectorN");
         typeN.setOnAction(event -> {
-            purgeElements(element);
+            purgeElements(element,"selector",false);
             element.getChildren().add(ne.create(base.getLayoutX(), base.getLayoutY(), metaData));
             element.setId(id+"N");
 
@@ -454,7 +517,7 @@ public class HomeScreen {
 
             //TODO: implement getting default timer selectors from cache
 
-            purgeElements(element);
+            purgeElements(element,"selector",false);
 
             element.getChildren().add(te.create(base.getLayoutX(), base.getLayoutY(), metaData));
             updated[0] = true;
@@ -474,7 +537,7 @@ public class HomeScreen {
         }
         else{
             titleSet[0] = true;
-            title.setText(titleTextD);
+            title.setText(titleTextD[0]);
             saveTitle.fire();
             assert type != null;
             if(type.equals("Note")){
@@ -618,11 +681,14 @@ public class HomeScreen {
         });
         
     }
-    private static void purgeElements(Group element){
+    private static void purgeElements(Group element, String id, boolean breakable){
         for(int i = 0; i < element.getChildren().size(); i++) {
             if(element.getChildren().get(i).getId() != null){
-                if(element.getChildren().get(i).getId().contains("selector")){
+                if(element.getChildren().get(i).getId().contains(id)){
                     element.getChildren().remove(i);
+                    if(breakable){
+                        break;
+                    }
                     i--;
                 }
             }

@@ -12,7 +12,6 @@ public class NoteElement extends Element{
     private final TextArea ta;
     private final Delta taOffset;
     private int seed;
-    protected int ID;
     public NoteElement(){
         taOffset = new Delta(4,39);
         ta = new TextArea();
@@ -27,10 +26,12 @@ public class NoteElement extends Element{
         element.setId(generateID());
 
         Init.formatObj(ta,x + taOffset.getX(),y + taOffset.getY());
+        ta.setId("noteArea");
         ta.setMinHeight(304);
         ta.setMaxWidth(242);
         ta.setFont(new Font(15));
         ta.setWrapText(true);
+        ta.setOnKeyPressed(event -> LoadCache.updateCache(this));
         element.getChildren().add(ta);
 
         return element;
@@ -78,8 +79,5 @@ public class NoteElement extends Element{
                 this.ID = Integer.parseInt(entry.getValue());
             }
         }
-    }
-    private void setID(){
-        this.ID = (int) Math.floor(Math.random() * 10000000);
     }
 }

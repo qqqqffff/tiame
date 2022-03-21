@@ -33,14 +33,14 @@ public class LoadCache {
         }
         return cache;
     }
-    protected static void updateCache(String id, Map<String, ?> data){
-        String rawID = String.valueOf(Integer.parseInt(id.substring(0, id.length() - 1)));
+    protected static void updateCache(Element e){
+        String rawID = String.valueOf(e.ID);
         Map<String, String> write = new HashMap<>();
-        for (Map.Entry<String, ?> entry : data.entrySet()) {
+        for (Map.Entry<String, ?> entry : e.generateMetaData().entrySet()) {
             write.put(entry.getKey(), entry.getValue().toString());
 //            System.out.println("Header: " + entry.getKey() + ", Data: " + entry.getValue().toString());
         }
-        if(id.contains("N")) {
+        if(e.generateSuperID().contains("N")) {
             write.put("Element", "Note");
         }
         try {
@@ -53,11 +53,11 @@ public class LoadCache {
 
             new Gson().toJson(write, writer);
             writer.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e1) {
+            e1.printStackTrace();
         }
     }
-    private static ArrayList<Integer> getCacheIds(){
+    protected static ArrayList<Integer> getCacheIds(){
         ArrayList<Integer> ids = new ArrayList<>();
         File cache = new File("src/cache/" + Screen.user.userName );
         for(String fileN : Objects.requireNonNull(cache.list())){
@@ -68,5 +68,8 @@ public class LoadCache {
     protected static void clearCache(int ID){
         File toDelete = new File("src/cache/" + Screen.user.userName + "/" + ID + ".json");
         toDelete.delete();
+    }
+    protected static void updateUserCache(String uID, Map<String, String> data){
+
     }
 }

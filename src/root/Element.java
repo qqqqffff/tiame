@@ -10,6 +10,7 @@ import java.util.Map;
 
 public abstract class Element {
     Group element = new Group();
+    protected int ID;
     protected abstract Group create(double x, double y, Map<String, String> metaData);
     protected abstract String getElementID();
     protected abstract String generateSuperID();
@@ -49,5 +50,20 @@ public abstract class Element {
             }
         }
         return data;
+    }
+    private static boolean existingID(int id){
+        for(int i : LoadCache.getCacheIds()){
+            if(i == id){
+                return true;
+            }
+        }
+        return false;
+    }
+    protected void setID(){
+        int id = (int) Math.floor(Math.random() * 10000000);
+        while(existingID(id)){
+            id = (int) Math.floor(Math.random() * 10000000);
+        }
+        this.ID = id;
     }
 }

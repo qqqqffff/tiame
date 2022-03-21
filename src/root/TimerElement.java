@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-//TODO:
 public class TimerElement extends Element{
     protected ArrayList<Integer> timerSelectors;
     private Text timer;
@@ -121,7 +120,6 @@ public class TimerElement extends Element{
         });
         element.getChildren().add(timeSelectorE);
 
-        //TODO: Stylize to remove borders
         startTimer = new Button();
         startTimer.setGraphic(Screen.resources.getImage("start"));
         startTimer.setId("timeStart");
@@ -169,7 +167,6 @@ public class TimerElement extends Element{
         });
         element.getChildren().add(startTimer);
 
-        //TODO: Stylize to remove borders
         pauseTimer = new Button();
         pauseTimer.setGraphic(Screen.resources.getImage("pause"));
         pauseTimer.setId("timePause");

@@ -17,9 +17,11 @@ public class UserData {
     protected String displayName;
     private int sessionID;
     protected boolean cacheInit;
+    private Map<String, String> userPreferences;
     public UserData(String userName, String displayName){
         this.userName = userName;
         this.displayName = displayName;
+        this.userPreferences = new HashMap<>();
         generateSessionID();
     }
     public UserData(){}
@@ -159,6 +161,9 @@ public class UserData {
     }
     protected void initializeCache(){
         File cache = new File("src/cache/");
+        if(!cache.exists()){
+            cache.mkdirs();
+        }
         if(Objects.requireNonNull(cache.list()).length == 0){
             File temp = new File("src/cache/.ignore");
             try {
@@ -172,5 +177,8 @@ public class UserData {
             cache.mkdirs();
         }
         cacheInit = true;
+    }
+    protected void loadUserPreferences(){
+
     }
 }
