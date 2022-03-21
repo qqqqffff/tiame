@@ -3,9 +3,6 @@ package root;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
@@ -15,6 +12,7 @@ import javafx.scene.text.Text;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+//TODO: Create Logo for login screen
 public class LoginScreen {
     protected static Group loginDisplay;
     protected static Group createAccount;
@@ -25,7 +23,11 @@ public class LoginScreen {
         TextField userField = new TextField();
         Init.formatObj(userField,400,200);
         userField.setMaxSize(150,45);
-        userField.setPromptText("Username");
+        if(Screen.saveLogin){
+            userField.setText(Screen.pastUsername);
+        }else {
+            userField.setPromptText("Username");
+        }
         loginDisplay.getChildren().add(userField);
 
         Label userFieldLabel = new Label("Username:");
@@ -81,6 +83,9 @@ public class LoginScreen {
         CheckBox saveLogin = new CheckBox("Stay Logged In?");
         Init.formatObj(saveLogin,325,325);
         saveLogin.setFont(new Font(15));
+        if(Screen.saveLogin){
+            saveLogin.setSelected(true);
+        }
         loginDisplay.getChildren().add(saveLogin);
 
         Button signIn = new Button("Login");
@@ -91,11 +96,13 @@ public class LoginScreen {
             String pass = passField.getText();
             String userN = userField.getText();
             if(!(pass.equals("") || userN.equals(""))) {
-                Screen.user.signInAttempt(userField.getText(),passField.getText());
-                Init.updateInit(1,saveLogin.isSelected(),userField.getText());
-                Screen.user.setDisplayName(UserData.getDisplayName(Screen.user.userName));
-                Screen.root.getChildren().remove(loginDisplay);
-                Screen.root.getChildren().add(HomeScreen.display1());
+                if(Screen.user.signInAttempt(userN, pass)) {
+                    Screen.user.initializeCache();
+                    Init.updateInit(saveLogin.isSelected(), userField.getText());
+                    Screen.root.getChildren().remove(loginDisplay);
+                    Screen.root.getChildren().add(HomeScreen.display1());
+                    HomeScreen.loadFromCache(LoadCache.loadCache());
+                }
             }
             if (userN.equals("")) {
                 ErrorHandling task = new ErrorHandling(1);
@@ -126,6 +133,7 @@ public class LoginScreen {
 
         return loginDisplay;
     }
+    //TODO: update with icons
     private static Group createAccount(){
         createAccount = new Group();
         createAccount.setId("createAccount");

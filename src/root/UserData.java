@@ -10,19 +10,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class UserData {
     protected String userName;
     protected String displayName;
-    private int sessionID;
     protected boolean cacheInit;
-    private Map<String, String> userPreferences;
-    public UserData(String userName, String displayName){
+    public UserData(String userName){
         this.userName = userName;
-        this.displayName = displayName;
-        this.userPreferences = new HashMap<>();
-        generateSessionID();
+        initializeCache();
     }
     public UserData(){}
     public static boolean checkDuplicate(String user){
@@ -95,90 +90,96 @@ public class UserData {
         }
         return false;
     }
-    public void signInAttempt(String USER, String PASS){
+    public boolean signInAttempt(String USER, String PASS){
         setData(USER);
         boolean success = checkPass(PASS);
         if(success){
-            System.out.println("Login Successful!");
-            System.out.println("Credentials: "+this.userName+", SessionID: "+sessionID);
-        }else{
-            setData(null);
-            System.out.println("Login Unsuccessful");
-            ErrorHandling task = new ErrorHandling(2);
-            ExecutorService service = Executors.newFixedThreadPool(1);
-            service.execute(task);
-            service.shutdown();
+//            System.out.println("Login Successful!");
+//            System.out.println("Credentials: "+this.userName+", SessionID: "+sessionID);
+            setData(USER,PASS);
+            return true;
         }
-
-    }
-    private void generateSessionID(){
-        sessionID = ThreadLocalRandom.current().nextInt(0,65536);
-    }
-    protected static String getDisplayName(String userName){
-        try{
-            Gson gson = new Gson();
-            BufferedReader reader = new BufferedReader(new FileReader("src/displayNames.json"));
-
-            Map<?, ?> map = gson.fromJson(reader, Map.class);
-            reader.close();
-
-            for(Map.Entry<?, ?> entry: map.entrySet()){
-                if(entry.getKey().toString().equals(userName)){
-                    return entry.getValue().toString();
-                }
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return userName;
+        setData(null);
+        System.out.println("Login Unsuccessful");
+        ErrorHandling task = new ErrorHandling(2);
+        ExecutorService service = Executors.newFixedThreadPool(1);
+        service.execute(task);
+        service.shutdown();
+        return false;
     }
     protected void setDisplayName(String displayName){
         initializeCache();
-
         this.displayName = displayName;
-        try{
-            Gson gson = new Gson();
-            BufferedReader reader =  new BufferedReader(new FileReader("src/displayNames.json"));
-
-            Map<?, ?> read = gson.fromJson(reader, Map.class);
-            reader.close();
-
-            Map<String, String> write = new HashMap<>();
-            for(Map.Entry<?, ?> entry : read.entrySet()){
-                if(entry.getKey().equals(this.userName)){
-                    write.put(entry.getKey().toString(),displayName);
-                }else{
-                    write.put(entry.getKey().toString(),entry.getValue().toString());
+        updateUserPreferences();
+    }
+    protected void initializeCache() {
+        File cache = new File("src/cache");
+        if (!cacheInit){
+            if (!cache.exists()) {
+                System.out.println("creating new cache");
+                cache.mkdirs();
+            }
+            if (Objects.requireNonNull(cache.list()).length == 0) {
+                File temp = new File("src/cache/.ignore");
+                try {
+                    System.out.println("creating temp file");
+                    temp.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
+            cache = new File("src/cache/" + this.userName);
+            if (!cache.exists()) {
+                System.out.println("creating user cache directory");
+                cache.mkdirs();
+            }
+            cacheInit = true;
+        }
+        loadUserPreferences();
+    }
+    private void loadUserPreferences(){
+        File userData = new File("src/cache/"+ userName + "/" + userName + ".json");
+        if(!userData.exists()){
+            try {
+                userData.createNewFile();
+            }catch(Exception e){
+                e.printStackTrace();
+            }
+        }
+        parseUserData();
+        updateUserPreferences();
+    }
+    protected void updateUserPreferences(){
+        Map<String, String> data = new HashMap<>();
+        data.put("DisplayName",displayName);
+        File userDataFile = new File("src/cache/"+ userName + "/" + userName + ".json");
+        try{
+            BufferedWriter writer = new BufferedWriter(new FileWriter(userDataFile));
 
-            BufferedWriter writer = new BufferedWriter(new FileWriter("src/displayNames.json"));
-            new Gson().toJson(write, writer);
+            new Gson().toJson(data, writer);
             writer.close();
         }catch(Exception e){
             e.printStackTrace();
         }
     }
-    protected void initializeCache(){
-        File cache = new File("src/cache/");
-        if(!cache.exists()){
-            cache.mkdirs();
-        }
-        if(Objects.requireNonNull(cache.list()).length == 0){
-            File temp = new File("src/cache/.ignore");
-            try {
-                temp.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        cache = new File("src/cache/" + Screen.user.userName);
-        if(!cache.exists()){
-            cache.mkdirs();
-        }
-        cacheInit = true;
-    }
-    protected void loadUserPreferences(){
+    protected void parseUserData(){
+        File userDataFile = new File("src/cache/"+ userName + "/" + userName + ".json");
+        try{
+            BufferedReader reader = new BufferedReader(new FileReader(userDataFile));
+            Gson gson = new Gson();
 
+            Map<?, ?> data = gson.fromJson(reader, Map.class);
+            for(Map.Entry<?, ?> entry : data.entrySet()){
+                if(entry.getKey().toString().equals("DisplayName")){
+                    this.displayName = entry.getValue().toString();
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        if(this.displayName == null){
+            this.displayName = userName;
+            updateUserPreferences();
+        }
     }
 }

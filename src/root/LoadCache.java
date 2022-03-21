@@ -61,15 +61,14 @@ public class LoadCache {
         ArrayList<Integer> ids = new ArrayList<>();
         File cache = new File("src/cache/" + Screen.user.userName );
         for(String fileN : Objects.requireNonNull(cache.list())){
-            ids.add(Integer.parseInt(fileN.substring(0,fileN.length()-5)));
+            if(!fileN.contains(Screen.user.userName)) {
+                ids.add(Integer.parseInt(fileN.substring(0, fileN.length() - 5)));
+            }
         }
         return ids;
     }
     protected static void clearCache(int ID){
         File toDelete = new File("src/cache/" + Screen.user.userName + "/" + ID + ".json");
         toDelete.delete();
-    }
-    protected static void updateUserCache(String uID, Map<String, String> data){
-
     }
 }

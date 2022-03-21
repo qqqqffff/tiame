@@ -34,7 +34,7 @@ public class HomeScreen {
 
         Timer.setTimerSelectors(1,5,30,1,5);
         homeDisplay = new Group();
-        generateSettingsDisplay(Screen.user);
+        generateSettingsDisplay();
 
         String userName = Screen.user.displayName;
         boundaries = new Delta(Screen.windowWidth - 145,50);
@@ -557,19 +557,19 @@ public class HomeScreen {
 
         return element;
     }
-    private static void generateSettingsDisplay(UserData user){
+    private static void generateSettingsDisplay(){
         settingsDisplay = new Group();
 
         boolean[] displayingFields = {false, false};
 
         ArrayList<Delta> offsets = new ArrayList<>();
-        offsets.add(new Delta(4,45));
-        offsets.add(new Delta(4,offsets.get(0).getY()+30));
-        offsets.add(new Delta(4,offsets.get(1).getY()+30));
-
+        offsets.add(new Delta(4,45)); //
+        offsets.add(new Delta(4,offsets.get(0).getY() + 30));
+        offsets.add(new Delta(4,offsets.get(1).getY() + 30));
 
         Rectangle base = new Rectangle(300,500);
-        Init.formatObj(base,((Screen.windowWidth - base.getWidth())/2),((Screen.windowHeight - base.getHeight())/ 2));
+        double defx = ((Screen.windowWidth - base.getWidth())/2), defy = 150;
+        Init.formatObj(base,defx,defy);
         base.setStrokeWidth(2.5);
         base.setStroke(Color.BLACK);
         base.setFill(Color.WHITE);
@@ -578,16 +578,16 @@ public class HomeScreen {
         Text title = new Text("Settings");
         title.setUnderline(true);
         title.setFont(new Font(25));
-        Init.formatObj(title,(base.getLayoutX()+((base.getWidth()-(title.getText().length() * 10))/2)),(base.getLayoutY()+title.getFont().getSize()+5));
         title.setFill(Color.BLACK);
         settingsDisplay.getChildren().add(title);
+        Init.formatObj(title,(base.getLayoutX() + ((base.getWidth() - title.getLayoutBounds().getWidth()) / 2)),(base.getLayoutY() + title.getFont().getSize() + 5));
 
 
 
-        Button exit = new Button("x");
-        exit.setMaxSize(25,25);
-        exit.setFont(new Font(12));
-        Init.formatObj(exit,(base.getLayoutX()+base.getWidth()-exit.getMaxWidth()-4),(base.getLayoutY()+4));
+        Button exit = new Button();
+        exit.setId("close");
+        exit.setGraphic(Screen.resources.getImage("close"));
+        Init.formatObj(exit,defx + base.getWidth() - 42,defy + 4);
         exit.setOnAction(event -> {
             homeDisplay.getChildren().remove(settingsDisplay);
             for(Node n : homeDisplay.getChildren()){
@@ -603,25 +603,24 @@ public class HomeScreen {
         setDNField.setFont(new Font(12));
         setDNField.setMaxSize(150,25);
         setDNField.setMinWidth(150);
-        Init.formatObj(setDNField,(base.getLayoutX()+offsets.get(1).getX()),(base.getLayoutY()+offsets.get(1).getY()));
+        Init.formatObj(setDNField,defx+offsets.get(1).getX(),base.getLayoutY() + offsets.get(1).getY());
         Init.hideElement(setDNField);
         settingsDisplay.getChildren().add(setDNField);
 
         //TODO: checkmark icon
         Button confirmDN = new Button("C");
         confirmDN.setFont(new Font(12));
-        confirmDN.setMaxSize(25,25);
-        Init.formatObj(confirmDN,(setDNField.getLayoutX()+setDNField.getMinWidth()+5),setDNField.getLayoutY());
+        Init.formatObj(confirmDN,(setDNField.getLayoutX() + setDNField.getMinWidth() + 5), setDNField.getLayoutY());
         Init.hideElement(confirmDN);
         confirmDN.setOnAction(event -> {
-            user.setDisplayName(setDNField.getText());
+            Screen.user.setDisplayName(setDNField.getText());
             System.out.println("Set Display Name to: "+setDNField.getText());
             setDNField.setText(null);
             setDNField.setPromptText("Success");
             for(Node n : homeDisplay.getChildren()){
                 if(n.getId() != null){
                     if(n.getId().equals("TitleText")){
-                        ((Text) n).setText("Welcome Back, " + user.displayName + "!");
+                        ((Text) n).setText("Welcome Back, " + Screen.user.displayName + "!");
                         break;
                     }
                 }
@@ -629,14 +628,10 @@ public class HomeScreen {
         });
         settingsDisplay.getChildren().add(confirmDN);
 
-
-
-        Button changePW = new Button("Change Password");
+        //TODO: stylize
         Button setDisplayName = new Button("Set Display Name");
-        
-        setDisplayName.setMaxSize(115,25);
         setDisplayName.setFont(new Font(12));
-        Init.formatObj(setDisplayName,base.getLayoutX()+offsets.get(0).getX(),base.getLayoutY()+offsets.get(0).getY());
+        Init.formatObj(setDisplayName,defx + offsets.get(0).getX(),base.getLayoutY()+offsets.get(0).getY());
         setDisplayName.setOnAction(event -> {
             //TODO: animate buttons going down;
             if(!displayingFields[0]){
@@ -657,18 +652,19 @@ public class HomeScreen {
             }
         });
         settingsDisplay.getChildren().add(setDisplayName);
-        
-        changePW.setMaxSize(115,25);
+
+        //TODO: implement
+        Button changePW = new Button("Change Password");
         changePW.setFont(new Font(12));
-        Init.formatObj(changePW,(base.getLayoutX()+offsets.get(2).getX()),(base.getLayoutY()+offsets.get(2).getY()));
+        Init.formatObj(changePW,defx + offsets.get(2).getX(),defy + offsets.get(2).getY());
         changePW.setOnAction(event -> {
             if(displayingFields[0]){
                 displayingFields[0] = false;
                 displayingFields[1] = true;
-                
+
                 Init.hideElement(setDNField);
                 Init.hideElement(confirmDN);
-                
+
                 //
                 Init.formatObj(changePW,changePW.getLayoutX(),changePW.getLayoutY()-40);
             }else if(!displayingFields[1]){
@@ -679,7 +675,22 @@ public class HomeScreen {
                 System.out.println("to be implemented");
             }
         });
-        
+
+        //TODO: stylize
+        Button logout = new Button("Logout");
+        Init.formatObj(logout,defx + 5,defy + 450);
+        logout.setFont(new Font(12));
+        logout.setOnAction(event -> {
+            Init.updateInit(Screen.saveLogin, Screen.user.userName);
+            Screen.pastUsername = Screen.user.userName;
+            Screen.user = new UserData();
+            Screen.root.getChildren().remove(homeDisplay);
+            Screen.root.getChildren().add(LoginScreen.display0());
+        });
+        settingsDisplay.getChildren().add(logout);
+
+
+        //TODO: implement changing default timer increments
     }
     private static void purgeElements(Group element, String id, boolean breakable){
         for(int i = 0; i < element.getChildren().size(); i++) {
