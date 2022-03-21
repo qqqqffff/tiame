@@ -26,6 +26,8 @@ public class Screen extends Application {
         String pastUsername = "";
         saveLogin = false;
 
+        Init.initialize();
+
         for(Map.Entry<String, String> entry : Init.parseInit().entrySet()){
             if(entry.getKey().equals("save-login")){
                 saveLogin = Boolean.parseBoolean(entry.getValue());

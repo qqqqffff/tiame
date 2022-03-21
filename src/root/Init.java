@@ -3,24 +3,12 @@ package root;
 import com.google.gson.Gson;
 import javafx.scene.Node;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Init {
-    private final int status;
-    private final boolean saveLogin;
-    private final String user;
-    public Init(boolean saveLogin, String user, int status){
-        this.status = status;
-        this.saveLogin = saveLogin;
-        this.user = user;
-    }
-//    public Init(){ }
-    protected int getStatus(){ return this.status; }
+    public Init(){ }
     protected static void hideElement(Node n){
         n.setOpacity(0);
         n.setDisable(true);
@@ -33,8 +21,6 @@ public class Init {
         n.setFocusTraversable(true);
         n.setMouseTransparent(false);
     }
-    protected boolean getSaveLogin(){ return this.saveLogin; }
-    protected String getUser(){ return this.user; }
     protected static String setTitle(boolean saveLogin){
         if(!saveLogin)
             return "Manager - Login";
@@ -72,5 +58,21 @@ public class Init {
         }
         catch(Exception e){ e.printStackTrace(); }
         return parsedInit;
+    }
+    protected static void initialize(){
+        File users = new File("src/users.json");
+        File init = new File("src/init.json");
+        try {
+            if(!users.exists()) {
+                users.createNewFile();
+                UserData.setData("admin","password");
+            }
+            if(!init.exists()) {
+                init.createNewFile();
+                updateInit(false,"N/A");
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

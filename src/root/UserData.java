@@ -20,7 +20,7 @@ public class UserData {
         initializeCache();
     }
     public UserData(){}
-    public static boolean checkDuplicate(String user){
+    protected static boolean checkDuplicate(String user){
         try{
             Gson gson = new Gson();
             BufferedReader reader = new BufferedReader(new FileReader("src/users.json"));
@@ -38,7 +38,7 @@ public class UserData {
         }
         return true;
     }
-    public static void setData(String userName, String unencryptedPass){
+    protected static void setData(String userName, String unencryptedPass){
         try{
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(unencryptedPass.getBytes(StandardCharsets.UTF_8));
@@ -51,8 +51,10 @@ public class UserData {
             reader.close();
 
             Map<String, String> write = new HashMap<>();
-            for(Map.Entry<?, ?> entry : read.entrySet()){
-                write.put(entry.getKey().toString(),entry.getValue().toString());
+            if(read != null) {
+                for (Map.Entry<?, ?> entry : read.entrySet()) {
+                    write.put(entry.getKey().toString(), entry.getValue().toString());
+                }
             }
             write.put(userName,new String(hash, StandardCharsets.UTF_8));
 
@@ -169,9 +171,11 @@ public class UserData {
             Gson gson = new Gson();
 
             Map<?, ?> data = gson.fromJson(reader, Map.class);
-            for(Map.Entry<?, ?> entry : data.entrySet()){
-                if(entry.getKey().toString().equals("DisplayName")){
-                    this.displayName = entry.getValue().toString();
+            if(data != null) {
+                for (Map.Entry<?, ?> entry : data.entrySet()) {
+                    if (entry.getKey().toString().equals("DisplayName")) {
+                        this.displayName = entry.getValue().toString();
+                    }
                 }
             }
         }catch(Exception e){
