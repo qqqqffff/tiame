@@ -1,0 +1,30 @@
+.button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+.button:hover {
+    -fx-background-color: rgba(185, 185, 185, 0.95);
+}
+.button#close{
+    -fx-start-margin: 5px;
+    -fx-end-margin: 10px;
+}
+.button#close:hover{
+    -fx-background-color: rgba(234, 46, 46, 0.55);
+}
+#saveTitle{
+    -fx-background-color: transparent;
+    -fx-border-style: solid;
+    -fx-font-weight: bold;
+    -fx-border-color: transparent;
+    -fx-font-size: 12px;
+}
+#saveTitle:hover{
+    -fx-border-color: transparent;
+    -fx-background-color: lightgrey;
+}
+#saveTitle:focused{
+    -fx-border-color: lightgrey;
+    -fx-border-width: 2px;
+    -fx-background-color: transparent;
+}

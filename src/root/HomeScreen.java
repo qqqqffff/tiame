@@ -11,6 +11,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +23,7 @@ public class HomeScreen {
     private static Group settingsDisplay;
     protected static int currentElements;
     protected static boolean showSideMenu;
+    private static Delta boundaries;
     //TODO: implement icon view versus text view for showing the side menu
     public static Group display1(){
         ArrayList<Delta> offsets = new ArrayList<>();
@@ -35,6 +37,7 @@ public class HomeScreen {
         generateSettingsDisplay(Screen.user);
 
         String userName = Screen.user.displayName;
+        boundaries = new Delta(Screen.windowWidth - 145,50);
         int x, y;
 
         Line sideMenuLine = new Line(offsets.get(0).getX(), offsets.get(0).getY(), offsets.get(1).getX(), offsets.get(1).getY());
@@ -61,10 +64,9 @@ public class HomeScreen {
         addElement.setTextFill(Color.GREY);
         addElement.setOnAction(event -> homeDisplay.getChildren().add(generateElement(null)));
         homeDisplay.getChildren().add(addElement);
-//        System.out.println(addElement.getLayoutBounds().getWidth());
 
         Button sideMenu = new Button();
-        sideMenu.setGraphic(Screen.resources.getImage("menu"));
+        sideMenu.setGraphic(Screen.resources.getImage("menu_open"));
         sideMenu.setTextFill(Color.GREY);
         sideMenu.setOnAction(event -> {
             EventHandling e = new EventHandling(1);
@@ -74,13 +76,15 @@ public class HomeScreen {
                 sideMenuLine.setId("hidden");
                 sideMenu.setId("hiddenB");
                 addElement.setId("hiddenB");
-                sideMenu.setGraphic(Screen.resources.getImage("menu_open"));
+                sideMenu.setGraphic(Screen.resources.getImage("menu"));
+                boundaries.setX(Screen.windowWidth - 80);
             }else{
                 showSideMenu = false;
                 sideMenuLine.setId("shown");
                 sideMenu.setId("shownB");
                 addElement.setId("shownB");
-                sideMenu.setGraphic(Screen.resources.getImage("menu"));
+                sideMenu.setGraphic(Screen.resources.getImage("menu_open"));
+                boundaries.setX(Screen.windowWidth - 145);
             }
             service.execute(e);
             service.shutdown();
@@ -140,16 +144,16 @@ public class HomeScreen {
 
         //TODO: cleanup offsets
         ArrayList<Delta> offsets = new ArrayList<>();
-        offsets.add(new Delta(0,35)); //Line 0
-        offsets.add(new Delta(225,4)); //Close 1
+        offsets.add(new Delta(0,37)); //Line 0
+        offsets.add(new Delta(217,4)); //Close 1
         offsets.add(new Delta(4,4)); //Title Field 2
         offsets.add(new Delta(-999,-999)); //DEPRECATED
-        offsets.add(new Delta(150,4)); //Save Title 4
-        offsets.add(new Delta(7,27)); //Title Text 5
-        offsets.add(new Delta(200,4)); //Pin 6
-        offsets.add(new Delta(175,4)); //Minimize 7
-        offsets.add(new Delta(30,40)); //Type N 8
-        offsets.add(new Delta(30,70)); //Type T 9
+        offsets.add(new Delta(140,4)); //Save Title 4
+        offsets.add(new Delta(7,24)); //Title Text 5
+        offsets.add(new Delta(190,4)); //Pin 6
+        offsets.add(new Delta(165,4)); //Minimize 7
+        offsets.add(new Delta(30,45)); //Type N 8
+        offsets.add(new Delta(30,105)); //Type T 9
 
 
         Line l = new Line();
@@ -162,8 +166,8 @@ public class HomeScreen {
         l.setStroke(Color.BLUE);
         l.setStrokeWidth(2.5);
 
-        //TODO: Stylize to remove Borders
         Button close = new Button();
+        close.setId("close");
         close.setGraphic(Screen.resources.getImage("close"));
         close.setLayoutX(defX + offsets.get(1).getX());
         close.setLayoutY(defY + offsets.get(1).getY());
@@ -174,7 +178,7 @@ public class HomeScreen {
             }
         });
 
-        //TODO: Stylize to remove borders (make big line at the bottom only thing visible)
+        //TODO: Stylize (make big line at the bottom only thing visible) ~ no idea
         TextField title = new TextField();
         title.setId("saveTitle");
         title.setPromptText("Untitled");
@@ -202,11 +206,12 @@ public class HomeScreen {
         Button typeL = new Button("List");
 
         base.setOnMouseDragged(event -> {
-            if(dragDelta.isDragging()) {
-                double x = base.getLayoutX();
-                double y = base.getLayoutY();
-                double xoffset = event.getX() - dragDelta.getX();
-                double yoffset = event.getY() - dragDelta.getY();
+            double x = base.getLayoutX();
+            double y = base.getLayoutY();
+            double xoffset = event.getX() - dragDelta.getX();
+            double yoffset = event.getY() - dragDelta.getY();
+
+            if(dragDelta.isDragging() && !boundaries.outOfBounds(x + xoffset,y + yoffset, base.getWidth())) {
 
                 base.setLayoutX(x + xoffset);
                 base.setLayoutY(y + yoffset);
@@ -294,7 +299,7 @@ public class HomeScreen {
                 title.setDisable(true);
                 titleText.setLayoutX(x);
                 titleText.setLayoutY(y);
-                titleText.setFont(new Font(23));
+                titleText.setFont(new Font(20));
                 titleText.setFill(Color.BLUE);
                 //TODO: auto-format the editButton
 //                System.out.println(titleText.getLayoutBounds().getWidth());
@@ -335,7 +340,6 @@ public class HomeScreen {
             }
         });
 
-        //TODO: Stylize to remove borders
         if(dragDelta.isDraggable()){
             pin.setId("unpinned");
             pin.setGraphic(Screen.resources.getImage("pin"));
@@ -360,7 +364,6 @@ public class HomeScreen {
             }
         });
 
-        //TODO: Stylize to remove borders
         minimize.setId("showing");
         minimize.setGraphic(Screen.resources.getImage("minimize"));
         minimize.setLayoutX(defX + offsets.get(7).getX());
@@ -429,7 +432,6 @@ public class HomeScreen {
             }
         });
 
-        //TODO: Stylize to remove borders
         typeN.setGraphic(Screen.resources.getImage("note"));
         typeN.setLayoutX(defX + offsets.get(8).getX());
         typeN.setLayoutY(defY + offsets.get(8).getY());
@@ -442,7 +444,6 @@ public class HomeScreen {
             updated[0] = true;
         });
 
-        //TODO: Stylize to remove borders
         typeT.setGraphic(Screen.resources.getImage("timer"));
         typeT.setLayoutX(defX + offsets.get(9).getX());
         typeT.setLayoutY(defY + offsets.get(9).getY());

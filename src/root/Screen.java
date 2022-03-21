@@ -1,12 +1,14 @@
 package root;
 
 import com.google.gson.Gson;
+import com.sun.javafx.css.Stylesheet;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.util.Map;
 
@@ -70,7 +72,9 @@ public class Screen extends Application {
             HomeScreen.loadFromCache(LoadCache.loadCache());
             Init.updateInit(1,true, user.userName);
         }
-        stage.setScene(new Scene(root, Screen.windowWidth, Screen.windowHeight));
+        Scene scene = new Scene(root, Screen.windowWidth, Screen.windowHeight);
+        scene.getStylesheets().add(Screen.class.getResource("stylesheet.css").toExternalForm());
+        stage.setScene(scene);
         stage.setTitle(this.title);
         stage.show();
     }
