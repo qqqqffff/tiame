@@ -28,9 +28,11 @@ public class HomeScreen {
     public static Group display1(){
         ArrayList<Delta> offsets = new ArrayList<>();
         offsets.add(new Delta(Screen.windowWidth - 145,50)); //Side Menu Line Start 0
-        offsets.add(new Delta(Screen.windowWidth - 145,Screen.windowHeight)); //Side Menu Line End 1
+        offsets.add(new Delta(Screen.windowWidth - 145, Screen.windowHeight)); //Side Menu Line End 1
         offsets.add(new Delta(0,50)); //Header Line Start 2
         offsets.add(new Delta(Screen.windowWidth,50)); //Header Line End 3
+        offsets.add(new Delta(Screen.windowWidth - 80,50)); //Side menu 4
+        offsets.add(new Delta(Screen.windowWidth - 80, Screen.windowHeight)); //side menu 5
 
         Timer.setTimerSelectors(1,5,30,1,5);
         homeDisplay = new Group();
@@ -40,7 +42,13 @@ public class HomeScreen {
         boundaries = new Delta(Screen.windowWidth - 145,50);
         int x, y;
 
-        Line sideMenuLine = new Line(offsets.get(0).getX(), offsets.get(0).getY(), offsets.get(1).getX(), offsets.get(1).getY());
+        Line sideMenuLine;
+        if(showSideMenu){
+            sideMenuLine =  new Line(offsets.get(0).getX(), offsets.get(0).getY(), offsets.get(1).getX(), offsets.get(1).getY());
+        }
+        else{
+            sideMenuLine = new Line(offsets.get(4).getX(), offsets.get(4).getY(), offsets.get(5).getX(), offsets.get(5).getY());
+        }
         sideMenuLine.setStroke(Color.BLACK);
         sideMenuLine.setStrokeWidth(3);
         homeDisplay.getChildren().add(sideMenuLine);

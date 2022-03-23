@@ -73,16 +73,29 @@ public class Timer extends Task<Void> {
         }
         return time + "m";
     }
-    protected static void setTimerSelectors(int a, int b, int c, int d, int e){
-        while(timerSelectors.size() < 5){
-            timerSelectors.add(0);
+    private static void initTimerSelectors(){
+        if(timerSelectors != null){
+            while(timerSelectors.size() < 5){
+                timerSelectors.add(0);
+            }
         }
+    }
+    protected static void setTimerSelectors(int a, int b, int c, int d, int e){
+        initTimerSelectors();
 
         timerSelectors.set(0, a);
         timerSelectors.set(1, b);
         timerSelectors.set(2, c);
         timerSelectors.set(3, d);
         timerSelectors.set(4, e);
+    }
+    protected static void setTimerSelectors(int val, int index){
+        initTimerSelectors();
+
+        while(timerSelectors.size() < 5){
+            timerSelectors.add(0);
+        }
+        timerSelectors.add(index,val);
     }
     private void findTimerText(boolean completed){
         for(Node n : HomeScreen.homeDisplay.getChildren()) {

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -154,6 +155,12 @@ public class UserData {
     protected void updateUserPreferences(){
         Map<String, String> data = new HashMap<>();
         data.put("DisplayName",displayName);
+        data.put("MenuOpen", String.valueOf(HomeScreen.showSideMenu));
+        data.put("TimeSelectorA", String.valueOf(Timer.timerSelectors.get(0)));
+        data.put("TimeSelectorB", String.valueOf(Timer.timerSelectors.get(1)));
+        data.put("TimeSelectorC", String.valueOf(Timer.timerSelectors.get(2)));
+        data.put("TimeSelectorD", String.valueOf(Timer.timerSelectors.get(3)));
+        data.put("TimeSelectorE", String.valueOf(Timer.timerSelectors.get(4)));
         File userDataFile = new File("src/cache/"+ userName + "/" + userName + ".json");
         try{
             BufferedWriter writer = new BufferedWriter(new FileWriter(userDataFile));
@@ -175,6 +182,16 @@ public class UserData {
                 for (Map.Entry<?, ?> entry : data.entrySet()) {
                     if (entry.getKey().toString().equals("DisplayName")) {
                         this.displayName = entry.getValue().toString();
+                    }else if(entry.getKey().toString().equals("TimeSelectorA")){
+                        Timer.setTimerSelectors(0, Integer.parseInt(entry.getValue().toString()));
+                    }else if(entry.getKey().toString().equals("TimeSelectorB")){
+                        Timer.setTimerSelectors(1, Integer.parseInt(entry.getValue().toString()));
+                    }else if(entry.getKey().toString().equals("TimeSelectorC")){
+                        Timer.setTimerSelectors(2, Integer.parseInt(entry.getValue().toString()));
+                    }else if(entry.getKey().toString().equals("TimeSelectorD")){
+                        Timer.setTimerSelectors(3, Integer.parseInt(entry.getValue().toString()));
+                    }else if(entry.getKey().toString().equals("TimeSelectorE")){
+                        Timer.setTimerSelectors(4, Integer.parseInt(entry.getValue().toString()));
                     }
                 }
             }
