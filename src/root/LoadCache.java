@@ -42,10 +42,13 @@ public class LoadCache {
         }
         if(e.generateSuperID().contains("N")) {
             write.put("Element", "Note");
+        }else if(e.generateSuperID().contains("T")){
+            write.put("Element", "Timer");
         }
         try {
             if (!Screen.user.cacheInit) {
                 Screen.user.initializeCache();
+                System.out.println("initializing user cache");
             }
             File cache = new File("src/cache/" + Screen.user.userName + "/" + rawID + ".json");
 

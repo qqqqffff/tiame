@@ -34,7 +34,8 @@ public class HomeScreen {
         offsets.add(new Delta(Screen.windowWidth - 80,50)); //Side menu 4
         offsets.add(new Delta(Screen.windowWidth - 80, Screen.windowHeight)); //side menu 5
 
-        Timer.setTimerSelectors(1,5,30,1,5);
+        //TODO: set as default on init
+        Screen.user.updateUserPreferences();
         homeDisplay = new Group();
         generateSettingsDisplay();
 
@@ -194,6 +195,8 @@ public class HomeScreen {
             HomeScreen.homeDisplay.getChildren().remove(element);
             if(element.getId().contains("N")) {
                 LoadCache.clearCache(ne.ID);
+            }else if(element.getId().contains("T")){
+                LoadCache.clearCache(te.ID);
             }
         });
 
@@ -330,6 +333,8 @@ public class HomeScreen {
                 if(titleSet[0]){
                     if(element.getId().contains("N")) {
                         LoadCache.updateCache(ne);
+                    }else if(element.getId().contains("T")){
+                        LoadCache.updateCache(te);
                     }
                 }
             }
@@ -382,6 +387,8 @@ public class HomeScreen {
                 if(updated[0]){
                     if(element.getId().contains("N")) {
                         LoadCache.updateCache(ne);
+                    }else if(element.getId().contains("T")){
+                        LoadCache.updateCache(te);
                     }
                     titleTextD[0] = t;
                 }
@@ -432,6 +439,8 @@ public class HomeScreen {
             }
             if(element.getId().contains("N")) {
                 LoadCache.updateCache(ne);
+            }else if(element.getId().contains("T")){
+                LoadCache.updateCache(te);
             }
         });
 
@@ -446,18 +455,15 @@ public class HomeScreen {
                 minimize.setGraphic(Screen.resources.getImage("maximize"));
 
                 if(element.getId().contains("N")){
-//                    System.out.println("hiding type: Note");
                     l.setOpacity(0);
                     ne.hideElements();
                     base.setHeight(40);
                 }
                 else if(element.getId().contains("T") && te.minimizable){
-//                    System.out.println("hiding type: Timer");
                     te.hideElements();
                     base.setHeight(70);
                 }
                 else if(element.getId().contains("S")){
-//                    System.out.println("hiding selectors");
                     l.setOpacity(0);
                     for(Node n : element.getChildren()){
                         if(n.getId() != null){
@@ -476,17 +482,14 @@ public class HomeScreen {
                 l.setOpacity(1);
 
                 if(element.getId().contains("N")){
-//                    System.out.println("displaying type: Note");
                     ne.showElements();
                     base.setHeight(350);
                 }
                 else if(element.getId().contains("T") && te.minimizable){
-//                    System.out.println("displaying type: Timer");
                     te.showElements();
                     base.setHeight(100);
                 }
                 else if(element.getId().contains("S")){
-//                    System.out.println("displaying selectors");
                     for(Node n : element.getChildren()){
                         if(n.getId() != null){
                             if(n.getId().contains("selector")){
@@ -500,6 +503,8 @@ public class HomeScreen {
             System.out.println(showing[0] + ", " + minimize.getId());
             if(element.getId().contains("N")) {
                 LoadCache.updateCache(ne);
+            }else if(element.getId().contains("T")){
+                LoadCache.updateCache(te);
             }
         });
 
@@ -522,8 +527,6 @@ public class HomeScreen {
         typeT.setOnAction(event -> {
             element.setId(id+"T");
             base.setHeight(100);
-
-            //TODO: implement getting default timer selectors from cache
 
             purgeElements(element,"selector",false);
 
@@ -551,6 +554,10 @@ public class HomeScreen {
             if(type.equals("Note")){
                 element.setId(id+"N");
                 element.getChildren().add(ne.create(defX,defY,metaData));
+            }else if(type.equals("Timer")){
+                element.setId(id+"T");
+                element.getChildren().add(te.create(defX,defY,metaData));
+                base.setHeight(100);
             }
             if(showing[0]){
                 System.out.println("minimizing");

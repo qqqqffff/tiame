@@ -6,21 +6,25 @@ import javafx.scene.Node;
 import javafx.scene.text.Text;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 
-//TODO: (BUG) fix formatting for time > 1HR
-//TODO: set format to hh:mm:ss when editing time
+//TODO: create AI to make a default timer
 public class Timer extends Task<Void> {
     private double time;
-    private final String id;
+    private String id;
     protected double currentTime;
     protected static ArrayList<Integer> timerSelectors = new ArrayList<>();
     private boolean interrupted;
-    public Timer(double time, String id){
+    private TimerElement te;
+    public Timer(double time, String id, TimerElement te){
         this.time = time;
         this.id = id;
         this.interrupted = false;
+        this.te = te;
     }
     //TODO: Add an event that happens when the timer is finished
     @Override
@@ -31,6 +35,8 @@ public class Timer extends Task<Void> {
             timeTo += analyzeCT();
             currentTime = time - timeTo;
             findTimerText(false);
+            te.time = new long[]{(long) currentTime};
+            LoadCache.updateCache(te);
         }
         if(!interrupted) {
             findTimerText(true);
@@ -41,19 +47,30 @@ public class Timer extends Task<Void> {
         this.interrupted = true;
     }
     private String formatDate(){
-        SimpleDateFormat formatter;
-        long deltaTime = (long) currentTime;
-        if( (deltaTime / (3600000)) > 1){
-            formatter = new SimpleDateFormat("hh:mm:ss");
-        }else if( (deltaTime / 600000) > 1){
-            formatter = new SimpleDateFormat("mm:ss");
-        }else if( (deltaTime / 60000) >= 1){
-            formatter = new SimpleDateFormat("m:ss");
-        }else{
-            formatter = new SimpleDateFormat("ss.SSS");
+        DateTimeFormatter formatter1;
+        long hourC = 3600000L;
+        long minuteC = 60000L;
+        long secondC = 1000L;
+        int minutes = 0, hours = 0, seconds = 0, millis = 0;
+        LocalTime ctime = LocalTime.of(hours,minutes,seconds);
+        if( (currentTime / 60000) >= 1){
+            formatter1 = DateTimeFormatter.ofPattern("HH:mm:ss");
+            hours = (int) (currentTime / hourC);
+            minutes = (int) ((currentTime - (hours * hourC))/ (minuteC));
+            seconds = (int) ((currentTime - (hours * hourC) - (minutes * minuteC)) / secondC);
+            ctime = LocalTime.of(hours,minutes,seconds);
+        }else {
+            formatter1 = DateTimeFormatter.ofPattern("HH:mm:ss SSS");
+            hours = (int) (currentTime / hourC);
+            minutes = (int) ((currentTime - (hours * hourC))/ (minuteC));
+            seconds = (int) ((currentTime - (hours * hourC) - (minutes * minuteC)) / secondC);
+            millis = (int) ((currentTime - (hours * hourC) - (minutes * minuteC) - (seconds * secondC)));
+            ctime = LocalTime.of(hours,minutes,seconds).plus(millis, ChronoUnit.MILLIS);
         }
-        Date date = new Date(deltaTime);
-        return formatter.format(date);
+
+
+
+        return formatter1.format(ctime);
     }
     protected String formatDate(double time){
         this.time = time;
@@ -73,34 +90,31 @@ public class Timer extends Task<Void> {
         }
         return time + "m";
     }
-    private static void initTimerSelectors(){
-        if(timerSelectors != null){
-            while(timerSelectors.size() < 5){
-                timerSelectors.add(0);
-            }
-        }
-    }
-    protected static void setTimerSelectors(int a, int b, int c, int d, int e){
-        initTimerSelectors();
-
-        timerSelectors.set(0, a);
-        timerSelectors.set(1, b);
-        timerSelectors.set(2, c);
-        timerSelectors.set(3, d);
-        timerSelectors.set(4, e);
-    }
-    protected static void setTimerSelectors(int val, int index){
-        initTimerSelectors();
-
+    protected static void initTimerSelectors(){
         while(timerSelectors.size() < 5){
             timerSelectors.add(0);
         }
-        timerSelectors.add(index,val);
+    }
+    protected static void setDefaultTimerSelectors(){
+        initTimerSelectors();
+
+        timerSelectors.set(0, 1);
+        timerSelectors.set(1, 5);
+        timerSelectors.set(2, 30);
+        timerSelectors.set(3, 1);
+        timerSelectors.set(4, 5);
+    }
+    protected static void setTimerSelectors(int index, int val){
+        if(timerSelectors != null) {
+            initTimerSelectors();
+        }
+        assert timerSelectors != null;
+        timerSelectors.set(index,val);
     }
     private void findTimerText(boolean completed){
         for(Node n : HomeScreen.homeDisplay.getChildren()) {
             if(n.getId() != null){
-//                System.out.println(n.getId() + ", "+ id);
+                System.out.println(n.getId() + ", "+ id);
                 if(n.getId().equals(id)) {
                     Group g = (Group) n;
                     for(Node p : g.getChildren()){

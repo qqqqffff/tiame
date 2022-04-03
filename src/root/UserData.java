@@ -144,13 +144,16 @@ public class UserData {
         File userData = new File("src/cache/"+ userName + "/" + userName + ".json");
         if(!userData.exists()){
             try {
+                System.out.println("creating user preferences file");
                 userData.createNewFile();
+                Timer.setDefaultTimerSelectors();
             }catch(Exception e){
                 e.printStackTrace();
             }
+        }else{
+            Timer.initTimerSelectors();
         }
         parseUserData();
-        updateUserPreferences();
     }
     protected void updateUserPreferences(){
         Map<String, String> data = new HashMap<>();
@@ -161,7 +164,7 @@ public class UserData {
         data.put("TimeSelectorC", String.valueOf(Timer.timerSelectors.get(2)));
         data.put("TimeSelectorD", String.valueOf(Timer.timerSelectors.get(3)));
         data.put("TimeSelectorE", String.valueOf(Timer.timerSelectors.get(4)));
-        File userDataFile = new File("src/cache/"+ userName + "/" + userName + ".json");
+        File userDataFile = new File("src/cache/" + userName + "/" + userName + ".json");
         try{
             BufferedWriter writer = new BufferedWriter(new FileWriter(userDataFile));
 
@@ -172,7 +175,7 @@ public class UserData {
         }
     }
     protected void parseUserData(){
-        File userDataFile = new File("src/cache/"+ userName + "/" + userName + ".json");
+        File userDataFile = new File("src/cache/" + userName + "/" + userName + ".json");
         try{
             BufferedReader reader = new BufferedReader(new FileReader(userDataFile));
             Gson gson = new Gson();
@@ -192,12 +195,15 @@ public class UserData {
                         Timer.setTimerSelectors(3, Integer.parseInt(entry.getValue().toString()));
                     }else if(entry.getKey().toString().equals("TimeSelectorE")){
                         Timer.setTimerSelectors(4, Integer.parseInt(entry.getValue().toString()));
+                    }else if(entry.getKey().toString().equals("MenuOpen")){
+                        HomeScreen.showSideMenu = Boolean.parseBoolean(entry.getValue().toString());
                     }
                 }
             }
         }catch(Exception e){
             e.printStackTrace();
         }
+
         if(this.displayName == null){
             this.displayName = userName;
             updateUserPreferences();

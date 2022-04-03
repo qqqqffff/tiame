@@ -9,10 +9,11 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
+//TODO: add text input ability
 public class TimerElement extends Element{
     protected ArrayList<Integer> timerSelectors;
     private Text timer;
@@ -34,6 +35,8 @@ public class TimerElement extends Element{
     private int seed;
     protected boolean minimizable;
     private Node tempMinimize;
+    final Timer[] t;
+    long[] time = {0};
     public TimerElement(){
         this.timerSelectors = Timer.timerSelectors;
         timerTextOffset = new Delta(4,60);
@@ -44,16 +47,19 @@ public class TimerElement extends Element{
         timerSelEOffset = new Delta(164,70);
         timerStartOffset = new Delta(204,70);
         timerPauseOffset = new Delta(196,40);
+
+        setSeed(HomeScreen.currentElements);
+        t = new Timer[]{new Timer(0, generateSuperID(),this)};
     }
     @Override
     protected Group create(double x, double y, Map<String, String> metaData) {
+        if(metaData == null) {
+            setID();
+        }
         minimizable = true;
-        setSeed(HomeScreen.currentElements);
         element.setId(generateID());
-        int selectorFontSize = 10;
-        final long[] time = {0};
+        int selectorFontSize = 11;
 
-        final Timer[] t = {new Timer(time[0], generateSuperID())};
         final ExecutorService[] service = {Executors.newFixedThreadPool(1)};
 
         timer = new Text();
@@ -63,7 +69,10 @@ public class TimerElement extends Element{
         Init.formatObj(timer,x + timerTextOffset.getX(),y + timerTextOffset.getY());
         element.getChildren().add(timer);
 
-
+        if(metaData != null){
+            parseMetaData(metaData);
+            timer.setText(t[0].formatDate(time[0]));
+        }
 
         timeSelectorA = new Button(Timer.generateSelectorString(Timer.timerSelectors.get(0)));
         timeSelectorA.setFont(new Font(selectorFontSize));
@@ -73,6 +82,7 @@ public class TimerElement extends Element{
         timeSelectorA.setOnAction(event1 -> {
             time[0] += (Timer.timerSelectors.get(0) * 60000);
             timer.setText(t[0].formatDate(time[0]));
+            LoadCache.updateCache(this);
         });
         element.getChildren().add(timeSelectorA);
 
@@ -84,6 +94,7 @@ public class TimerElement extends Element{
         timeSelectorB.setOnAction(event1 -> {
             time[0] += (Timer.timerSelectors.get(1) * 60000);
             timer.setText(t[0].formatDate(time[0]));
+            LoadCache.updateCache(this);
         });
         element.getChildren().add(timeSelectorB);
 
@@ -95,6 +106,7 @@ public class TimerElement extends Element{
         timeSelectorC.setOnAction(event1 -> {
             time[0] += (Timer.timerSelectors.get(2) * 60000);
             timer.setText(t[0].formatDate(time[0]));
+            LoadCache.updateCache(this);
         });
         element.getChildren().add(timeSelectorC);
 
@@ -105,7 +117,11 @@ public class TimerElement extends Element{
         timeSelectorD.setMaxSize(35,25);
         timeSelectorD.setOnAction(event1 -> {
             time[0] -= (Timer.timerSelectors.get(3) * 60000);
+            if(time[0] <= 0){
+                time[0] = 0;
+            }
             timer.setText(t[0].formatDate(time[0]));
+            LoadCache.updateCache(this);
         });
         element.getChildren().add(timeSelectorD);
 
@@ -116,6 +132,9 @@ public class TimerElement extends Element{
         timeSelectorE.setMaxSize(35,25);
         timeSelectorE.setOnAction(event1 -> {
             time[0] -= (Timer.timerSelectors.get(4) * 60000);
+            if(time[0] <= 0){
+                time[0] = 0;
+            }
             timer.setText(t[0].formatDate(time[0]));
         });
         element.getChildren().add(timeSelectorE);
@@ -128,7 +147,7 @@ public class TimerElement extends Element{
         startTimer.setOnAction(event -> {
             //TODO: add error handling
             if(time[0] == 0){
-                time[0] = 60 * 1000;
+                time[0] = 60000;
             }
             element.getChildren().remove(timeSelectorA);
             element.getChildren().remove(timeSelectorB);
@@ -145,11 +164,13 @@ public class TimerElement extends Element{
                             if(g.getChildren().get(i).getId() != null){
                                 if(g.getChildren().get(i).getId().contains("base")){
                                     ((Rectangle) g.getChildren().get(i)).setHeight(65);
-                                }else if(g.getChildren().get(i).getId().contains("minimize")){
+                                }else if(g.getChildren().get(i).getId().equals("hidden") ||
+                                        g.getChildren().get(i).getId().equals("showing")){
+                                    System.out.println("found");
                                     tempMinimize = g.getChildren().get(i);
                                     g.getChildren().remove(i);
                                     i--;
-                                }else if(g.getChildren().get(i).getId().contains("save")){
+                                }else if(g.getChildren().get(i).getId().equals("save")){
                                     Init.formatObj(g.getChildren().get(i),g.getChildren().get(i).getLayoutX()+25,g.getChildren().get(i).getLayoutY());
                                 }
                             }
@@ -167,6 +188,7 @@ public class TimerElement extends Element{
         });
         element.getChildren().add(startTimer);
 
+        //TODO: fix formatting of the pause button
         pauseTimer = new Button();
         pauseTimer.setGraphic(Screen.resources.getImage("pause"));
         pauseTimer.setId("timePause");
@@ -174,7 +196,7 @@ public class TimerElement extends Element{
         Init.formatObj(pauseTimer,x + timerPauseOffset.getX(),y + timerPauseOffset.getY());
         pauseTimer.setOnAction(event -> {
             t[0].interrupt();
-            t[0] = new Timer(t[0].currentTime,generateSuperID());
+            t[0] = new Timer(t[0].currentTime,generateSuperID(),this);
             service[0].shutdownNow();
             service[0] = Executors.newFixedThreadPool(1);
 
@@ -186,8 +208,8 @@ public class TimerElement extends Element{
                             if(g.getChildren().get(i).getId() != null){
                                 if(g.getChildren().get(i).getId().contains("base")){
                                     ((Rectangle) g.getChildren().get(i)).setHeight(100);
-                                }else if(g.getChildren().get(i).getId().contains("save")){
-                                    Init.formatObj(g.getChildren().get(i),g.getChildren().get(i).getLayoutX()-25,g.getChildren().get(i).getLayoutY());
+                                }else if(g.getChildren().get(i).getId().equals("save")){
+                                    Init.formatObj(g.getChildren().get(i),g.getChildren().get(i).getLayoutX() - 25,g.getChildren().get(i).getLayoutY());
                                 }
                             }
                         }
@@ -262,11 +284,22 @@ public class TimerElement extends Element{
 
     @Override
     protected Map<String, ?> generateMetaData() {
-        return null;
+        Map<String, String> metaData = new HashMap<>(getSuperElementData());
+
+        metaData.put("Time",String.valueOf(t[0].currentTime));
+        metaData.put("ID",String.valueOf(this.ID));
+
+        return metaData;
     }
 
     @Override
     protected void parseMetaData(Map<String, String> metaData) {
-
+        for(Map.Entry<String, String> entry : metaData.entrySet()){
+            if(entry.getKey().equals("Time")){
+                time[0] = (long) Double.parseDouble(entry.getValue());
+            }else if(entry.getKey().equals("ID")){
+                this.ID = Integer.parseInt(entry.getValue());
+            }
+        }
     }
 }
