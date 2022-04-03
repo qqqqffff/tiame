@@ -286,7 +286,7 @@ public class TimerElement extends Element{
     protected Map<String, ?> generateMetaData() {
         Map<String, String> metaData = new HashMap<>(getSuperElementData());
 
-        metaData.put("Time",String.valueOf(t[0].currentTime));
+        metaData.put("Time",String.valueOf(this.time[0]));
         metaData.put("ID",String.valueOf(this.ID));
 
         return metaData;
@@ -301,5 +301,8 @@ public class TimerElement extends Element{
                 this.ID = Integer.parseInt(entry.getValue());
             }
         }
+    }
+    protected void updateTime(Long newTime){
+        this.time[0] = newTime;
     }
 }

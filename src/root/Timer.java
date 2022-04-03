@@ -5,12 +5,10 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.text.Text;
 
-import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Date;
 
 //TODO: create AI to make a default timer
 public class Timer extends Task<Void> {
@@ -35,7 +33,7 @@ public class Timer extends Task<Void> {
             timeTo += analyzeCT();
             currentTime = time - timeTo;
             findTimerText(false);
-            te.time = new long[]{(long) currentTime};
+            te.updateTime((long) currentTime);
             LoadCache.updateCache(te);
         }
         if(!interrupted) {

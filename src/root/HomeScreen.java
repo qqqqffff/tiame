@@ -251,6 +251,8 @@ public class HomeScreen {
                 if(updated[0]){
                     if(element.getId().contains("N")){
                         LoadCache.updateCache(ne);
+                    }else if(element.getId().contains("T")){
+                        LoadCache.updateCache(te);
                     }
                     titleTextD[0] = title.getText();
                 }
@@ -360,6 +362,9 @@ public class HomeScreen {
                 y = base.getLayoutY() + offsets.get(5).getY();
 
                 String t = title.getText();
+                if(t.equals("")){
+                    t = title.getPromptText();
+                }
                 Text titleText = new Text(t);
                 titleText.setId("title");
                 Init.hideElement(title);
@@ -643,7 +648,6 @@ public class HomeScreen {
         });
         settingsDisplay.getChildren().add(confirmDN);
 
-        //TODO: stylize
         Button setDisplayName = new Button("Set Display Name");
         setDisplayName.setFont(new Font(12));
         Init.formatObj(setDisplayName,defx + offsets.get(0).getX(),base.getLayoutY()+offsets.get(0).getY());
