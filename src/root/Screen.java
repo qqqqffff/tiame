@@ -51,6 +51,7 @@ public class Screen extends Application {
         else{
             root.getChildren().add(HomeScreen.display1());
             HomeScreen.loadFromCache(LoadCache.loadCache());
+            Archive.loadArchive();
             Init.updateInit(true, user.userName);
         }
         Scene scene = new Scene(root, Screen.windowWidth, Screen.windowHeight);

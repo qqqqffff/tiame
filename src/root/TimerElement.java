@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 //TODO: add text input ability
+//TODO: add ability to shelve (put into side bar) ~ just displays timer
 public class TimerElement extends Element{
     protected ArrayList<Integer> timerSelectors;
     private Text timer;
@@ -50,6 +51,7 @@ public class TimerElement extends Element{
 
         setSeed(HomeScreen.currentElements);
         t = new Timer[]{new Timer(0, generateSuperID(),this)};
+        this.type = "Timer";
     }
     @Override
     protected Group create(double x, double y, Map<String, String> metaData) {
@@ -283,7 +285,7 @@ public class TimerElement extends Element{
     }
 
     @Override
-    protected Map<String, ?> generateMetaData() {
+    protected Map<String, String> generateMetaData() {
         Map<String, String> metaData = new HashMap<>(getSuperElementData());
 
         metaData.put("Time",String.valueOf(this.time[0]));

@@ -15,18 +15,20 @@ public class LoadCache {
         try{
             Gson gson = new Gson();
             for(int i : getCacheIds()) {
-                BufferedReader reader = new BufferedReader(new FileReader("src/cache/" + Screen.user.userName + "/" + i + ".json"));
+                if(!Archive.insideArchive(i)) {
+                    BufferedReader reader = new BufferedReader(new FileReader("src/cache/" + Screen.user.userName + "/" + i + ".json"));
 
-                Map<?, ?> read = gson.fromJson(reader, Map.class);
-                reader.close();
+                    Map<?, ?> read = gson.fromJson(reader, Map.class);
+                    reader.close();
 
 
-                Map<String, String> data = new HashMap<>();
-                for(Map.Entry<?, ?> entry : read.entrySet()){
-                    data.put(entry.getKey().toString(), entry.getValue().toString());
+                    Map<String, String> data = new HashMap<>();
+                    for (Map.Entry<?, ?> entry : read.entrySet()) {
+                        data.put(entry.getKey().toString(), entry.getValue().toString());
+                    }
+
+                    cache.put(String.valueOf(i), data);
                 }
-
-                cache.put(String.valueOf(i), data);
             }
         }catch(Exception e){
             e.printStackTrace();
@@ -73,5 +75,22 @@ public class LoadCache {
     protected static void clearCache(int ID){
         File toDelete = new File("src/cache/" + Screen.user.userName + "/" + ID + ".json");
         toDelete.delete();
+    }
+    protected static void buildFromCache(int ID){
+        Gson gson = new Gson();
+        if(getCacheIds().contains(ID)) {
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader("src/cache/" + Screen.user.userName + "/" + ID + ".json"));
+                Map<?, ?> read = gson.fromJson(reader, Map.class);
+                reader.close();
+                Map<String, String> data = new HashMap<>();
+                for(Map.Entry<?, ?> entry : read.entrySet()){
+                    data.put(entry.getKey().toString(), entry.getValue().toString());
+                }
+                HomeScreen.homeDisplay.getChildren().add(HomeScreen.generateElement(data));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

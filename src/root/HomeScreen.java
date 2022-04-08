@@ -119,7 +119,7 @@ public class HomeScreen {
 
         return homeDisplay;
     }
-    private static Group generateElement(Map<String, String> metaData){
+    protected static Group generateElement(Map<String, String> metaData){
         double defX = 25, defY = 50;
 
         Group element = new Group();
@@ -711,7 +711,7 @@ public class HomeScreen {
 
         //TODO: implement changing default timer increments
     }
-    private static void purgeElements(Group element, String id, boolean breakable){
+    protected static void purgeElements(Group element, String id, boolean breakable){
         for(int i = 0; i < element.getChildren().size(); i++) {
             if(element.getChildren().get(i).getId() != null){
                 if(element.getChildren().get(i).getId().contains(id)){
