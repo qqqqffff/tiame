@@ -1,5 +1,6 @@
 package root;
 
+import events.MoveSideMenu;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
@@ -11,6 +12,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import menus.Settings;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -18,43 +20,34 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class HomeScreen {
-    protected static Group homeDisplay;
-    private static Group sideMenu;
-    private static Group settingsDisplay;
+    public static Group homeDisplay = new Group();
+    public static Group sideMenu = new Group();
     protected static int currentElements;
     protected static boolean showSideMenu;
     private static Delta boundaries;
     //TODO: implement icon view versus text view for showing the side menu
-    public static Group display1(){
-        ArrayList<Delta> offsets = new ArrayList<>();
-        offsets.add(new Delta(Screen.windowWidth - 145,50)); //Side Menu Line Start 0
-        offsets.add(new Delta(Screen.windowWidth - 145, Screen.windowHeight)); //Side Menu Line End 1
-        offsets.add(new Delta(0,50)); //Header Line Start 2
-        offsets.add(new Delta(Screen.windowWidth,50)); //Header Line End 3
-        offsets.add(new Delta(Screen.windowWidth - 80,50)); //Side menu 4
-        offsets.add(new Delta(Screen.windowWidth - 80, Screen.windowHeight)); //side menu 5
+    public static void display1(){
+        Delta[] offsets = new Delta[10];
+        offsets[0] = new Delta(Screen.windowWidth - 160,50); //side menu shown
+        offsets[1] = new Delta(Screen.windowWidth - 80,50); //side menu hidden
+        offsets[2] = new Delta(0,50); //header line start
 
         //TODO: set as default on init
         Screen.user.updateUserPreferences();
-        homeDisplay = new Group();
-        generateSettingsDisplay();
+        if(showSideMenu) Init.formatObj(sideMenu, offsets[0].getX(), offsets[0].getY());
+        else             Init.formatObj(sideMenu, offsets[1].getX(), offsets[1].getY());
 
         String userName = Screen.user.displayName;
-        boundaries = new Delta(Screen.windowWidth - 145,50);
+        boundaries = new Delta(Screen.windowWidth - 160,50);
         int x, y;
 
-        Line sideMenuLine;
-        if(showSideMenu){
-            sideMenuLine =  new Line(offsets.get(0).getX(), offsets.get(0).getY(), offsets.get(1).getX(), offsets.get(1).getY());
-        }
-        else{
-            sideMenuLine = new Line(offsets.get(4).getX(), offsets.get(4).getY(), offsets.get(5).getX(), offsets.get(5).getY());
-        }
+
+        Line sideMenuLine =  new Line(0, 0, 0, Screen.windowHeight);
         sideMenuLine.setStroke(Color.BLACK);
         sideMenuLine.setStrokeWidth(3);
-        homeDisplay.getChildren().add(sideMenuLine);
+        sideMenu.getChildren().add(sideMenuLine);
 
-        Line headerLine = new Line(offsets.get(2).getX(), offsets.get(2).getY(), offsets.get(3).getX(), offsets.get(3).getY());
+        Line headerLine = new Line(offsets[2].getX(), offsets[2].getY(), Screen.windowWidth, offsets[2].getY());
         headerLine.setStroke(Color.BLACK);
         headerLine.setStrokeWidth(5);
         homeDisplay.getChildren().add(headerLine);
@@ -67,40 +60,43 @@ public class HomeScreen {
         Init.formatObj(welcomeText,((Screen.windowWidth - welcomeText.getLayoutBounds().getWidth())/ 2),35);
 
         Button addElement = new Button();
+        addElement.setId("add");
         addElement.setGraphic(Screen.resources.getImage("new"));
-        x = Screen.windowWidth - ((145 + 30) / 2);
-        Init.formatObj(addElement,x,125);
+        addElement.setMaxSize(50,50);
+        addElement.setMinSize(50,50);
+        x = (int) ((Screen.windowWidth - sideMenu.getLayoutX() - 50) / 2);
+        Init.formatObj(addElement,x,90);
         addElement.setTextFill(Color.GREY);
         addElement.setOnAction(event -> homeDisplay.getChildren().add(generateElement(null)));
-        homeDisplay.getChildren().add(addElement);
+        sideMenu.getChildren().add(addElement);
 
-        Button sideMenu = new Button();
-        sideMenu.setGraphic(Screen.resources.getImage("menu_open"));
-        sideMenu.setTextFill(Color.GREY);
-        sideMenu.setOnAction(event -> {
-            EventHandling e = new EventHandling(1);
-            ExecutorService service = Executors.newFixedThreadPool(1);
+        Button sideMenuButton = new Button();
+        sideMenuButton.setId("menu");
+        sideMenuButton.setGraphic(Screen.resources.getImage("menu_open"));
+        sideMenuButton.setTextFill(Color.GREY);
+        sideMenuButton.setOnAction(event -> {
+            sideMenuButton.setDisable(true);
+            ExecutorService mvService = Executors.newFixedThreadPool(1);
+            MoveSideMenu mv = new MoveSideMenu(sideMenu, showSideMenu);
             if(!showSideMenu) {
                 showSideMenu = true;
-                sideMenuLine.setId("hidden");
-                sideMenu.setId("hiddenB");
-                addElement.setId("hiddenB");
-                sideMenu.setGraphic(Screen.resources.getImage("menu"));
+                sideMenuButton.setGraphic(Screen.resources.getImage("menu"));
                 boundaries.setX(Screen.windowWidth - 80);
+                //TODO: phase in display
+//                Archive.buildArchiveDisplay(sideMenu.getLayoutX());
             }else{
                 showSideMenu = false;
-                sideMenuLine.setId("shown");
-                sideMenu.setId("shownB");
-                addElement.setId("shownB");
-                sideMenu.setGraphic(Screen.resources.getImage("menu_open"));
-                boundaries.setX(Screen.windowWidth - 145);
+                sideMenuButton.setGraphic(Screen.resources.getImage("menu_open"));
+                boundaries.setX(Screen.windowWidth - 175);
             }
-            service.execute(e);
-            service.shutdown();
+            Screen.user.updateUserPreferences();
+            mvService.execute(mv);
+            mvService.shutdown();
         });
-        homeDisplay.getChildren().add(sideMenu);
-        x = Screen.windowWidth - ((145 + 30) / 2);
-        Init.formatObj(sideMenu,x,65);
+        Init.formatObj(sideMenuButton,x,20);
+        sideMenuButton.setMaxSize(50,50);
+        sideMenuButton.setMinSize(50,50);
+        sideMenu.getChildren().add(sideMenuButton);
 
         Button settingsMenu = new Button();
         settingsMenu.setGraphic(Screen.resources.getImage("settings"));
@@ -112,12 +108,13 @@ public class HomeScreen {
                 n.setEffect(new GaussianBlur());
                 n.setDisable(true);
             }
-            homeDisplay.getChildren().add(settingsDisplay);
+            homeDisplay.getChildren().add(Settings.settingsDisplay());
         });
         homeDisplay.getChildren().add(settingsMenu);
 
 
-        return homeDisplay;
+        Screen.root.getChildren().add(homeDisplay);
+        Screen.root.getChildren().add(sideMenu);
     }
     protected static Group generateElement(Map<String, String> metaData){
         double defX = 25, defY = 50;
@@ -576,140 +573,6 @@ public class HomeScreen {
 
 
         return element;
-    }
-    private static void generateSettingsDisplay(){
-        settingsDisplay = new Group();
-
-        boolean[] displayingFields = {false, false};
-
-        ArrayList<Delta> offsets = new ArrayList<>();
-        offsets.add(new Delta(4,45)); //
-        offsets.add(new Delta(4,offsets.get(0).getY() + 30));
-        offsets.add(new Delta(4,offsets.get(1).getY() + 30));
-
-        Rectangle base = new Rectangle(300,500);
-        double defx = ((Screen.windowWidth - base.getWidth())/2), defy = 150;
-        Init.formatObj(base,defx,defy);
-        base.setStrokeWidth(2.5);
-        base.setStroke(Color.BLACK);
-        base.setFill(Color.WHITE);
-        settingsDisplay.getChildren().add(base);
-
-        Text title = new Text("Settings");
-        title.setUnderline(true);
-        title.setFont(new Font(25));
-        title.setFill(Color.BLACK);
-        settingsDisplay.getChildren().add(title);
-        Init.formatObj(title,(base.getLayoutX() + ((base.getWidth() - title.getLayoutBounds().getWidth()) / 2)),(base.getLayoutY() + title.getFont().getSize() + 5));
-
-
-
-        Button exit = new Button();
-        exit.setId("close");
-        exit.setGraphic(Screen.resources.getImage("close"));
-        Init.formatObj(exit,defx + base.getWidth() - 42,defy + 4);
-        exit.setOnAction(event -> {
-            homeDisplay.getChildren().remove(settingsDisplay);
-            for(Node n : homeDisplay.getChildren()){
-                n.setEffect(null);
-                n.setDisable(false);
-            }
-        });
-        settingsDisplay.getChildren().add(exit);
-
-
-        TextField setDNField = new TextField();
-        setDNField.setPromptText("Display Name");
-        setDNField.setFont(new Font(12));
-        setDNField.setMaxSize(150,25);
-        setDNField.setMinWidth(150);
-        Init.formatObj(setDNField,defx+offsets.get(1).getX(),base.getLayoutY() + offsets.get(1).getY());
-        Init.hideElement(setDNField);
-        settingsDisplay.getChildren().add(setDNField);
-
-        //TODO: checkmark icon
-        Button confirmDN = new Button("C");
-        confirmDN.setFont(new Font(12));
-        Init.formatObj(confirmDN,(setDNField.getLayoutX() + setDNField.getMinWidth() + 5), setDNField.getLayoutY());
-        Init.hideElement(confirmDN);
-        confirmDN.setOnAction(event -> {
-            Screen.user.setDisplayName(setDNField.getText());
-            System.out.println("Set Display Name to: "+setDNField.getText());
-            setDNField.setText(null);
-            setDNField.setPromptText("Success");
-            for(Node n : homeDisplay.getChildren()){
-                if(n.getId() != null){
-                    if(n.getId().equals("TitleText")){
-                        ((Text) n).setText("Welcome Back, " + Screen.user.displayName + "!");
-                        break;
-                    }
-                }
-            }
-        });
-        settingsDisplay.getChildren().add(confirmDN);
-
-        Button setDisplayName = new Button("Set Display Name");
-        setDisplayName.setFont(new Font(12));
-        Init.formatObj(setDisplayName,defx + offsets.get(0).getX(),base.getLayoutY()+offsets.get(0).getY());
-        setDisplayName.setOnAction(event -> {
-            //TODO: animate buttons going down;
-            if(!displayingFields[0]){
-                displayingFields[0] = true;
-                
-                //
-                
-                Init.showElement(setDNField);
-                Init.showElement(confirmDN);
-            }else{
-                displayingFields[0] = false;
-                displayingFields[1] = false;
-                
-                Init.hideElement(setDNField);
-                Init.hideElement(confirmDN);
-                
-                //
-            }
-        });
-        settingsDisplay.getChildren().add(setDisplayName);
-
-        //TODO: implement
-        Button changePW = new Button("Change Password");
-        changePW.setFont(new Font(12));
-        Init.formatObj(changePW,defx + offsets.get(2).getX(),defy + offsets.get(2).getY());
-        changePW.setOnAction(event -> {
-            if(displayingFields[0]){
-                displayingFields[0] = false;
-                displayingFields[1] = true;
-
-                Init.hideElement(setDNField);
-                Init.hideElement(confirmDN);
-
-                //
-                Init.formatObj(changePW,changePW.getLayoutX(),changePW.getLayoutY()-40);
-            }else if(!displayingFields[1]){
-                //to be implemented
-                System.out.println("to be implemented");
-            }else{
-                //to be implemented
-                System.out.println("to be implemented");
-            }
-        });
-
-        //TODO: stylize
-        Button logout = new Button("Logout");
-        Init.formatObj(logout,defx + 5,defy + 450);
-        logout.setFont(new Font(12));
-        logout.setOnAction(event -> {
-            Init.updateInit(Screen.saveLogin, Screen.user.userName);
-            Screen.pastUsername = Screen.user.userName;
-            Screen.user = new UserData();
-            Screen.root.getChildren().remove(homeDisplay);
-            Screen.root.getChildren().add(LoginScreen.display0());
-        });
-        settingsDisplay.getChildren().add(logout);
-
-
-        //TODO: implement changing default timer increments
     }
     protected static void purgeElements(Group element, String id, boolean breakable){
         for(int i = 0; i < element.getChildren().size(); i++) {

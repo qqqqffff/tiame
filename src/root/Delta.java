@@ -1,12 +1,12 @@
 package root;
 
-class Delta {
+public class Delta {
     private double x;
     private double y;
     private boolean dragging;
     private boolean draggable;
 
-    Delta(double x, double y) {
+    public Delta(double x, double y) {
         this.x = x;
         this.y = y;
     }
@@ -14,39 +14,39 @@ class Delta {
     Delta() {
     }
 
-    protected void setX(double x) {
+    public void setX(double x) {
         this.x = x;
     }
 
-    protected void setY(double y) {
+    public void setY(double y) {
         this.y = y;
     }
 
-    protected void setDraggable(boolean draggable) {
+    public void setDraggable(boolean draggable) {
         this.draggable = draggable;
     }
 
-    protected boolean isDraggable() {
+    public boolean isDraggable() {
         return draggable;
     }
 
-    protected void setDragging(boolean dragging) {
+    public void setDragging(boolean dragging) {
         this.dragging = dragging;
     }
 
-    protected boolean isDragging() {
+    public boolean isDragging() {
         return dragging;
     }
 
-    protected double getX() {
+    public double getX() {
         return x;
     }
 
-    protected double getY() {
+    public double getY() {
         return y;
     }
 
-    protected boolean outOfBounds(double x, double y, double w){
+    public boolean outOfBounds(double x, double y, double w){
         return ((Screen.windowHeight - 40) <= y) || (this.x <= (x + w)) || (this.y >= y) || (x <= 0);
     }
 }

@@ -28,7 +28,7 @@ public class ResourceLoader {
         resources.put("settings",getResource("settings",10,30));
         resources.put("menu",getResource("menu",30,35));
         resources.put("menu_open",getResource("menu_open",30,35));
-        resources.put("new",getResource("new",35,30));
+        resources.put("new",getResource("new",30,30));
 
         resources.put("start",getResource("start",20,12));
         resources.put("pause",getResource("pause",25,12));
@@ -46,7 +46,7 @@ public class ResourceLoader {
         }
         return null;
     }
-    protected ImageView getImage(String search){
+    public ImageView getImage(String search){
         for(Map.Entry<String, ImageView> entry : resources.entrySet()){
             if(entry.getKey().equals(search)){
                 ImageView iv = new ImageView(entry.getValue().getImage());

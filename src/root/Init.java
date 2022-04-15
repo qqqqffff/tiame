@@ -9,13 +9,13 @@ import java.util.Map;
 
 public class Init {
     public Init(){ }
-    protected static void hideElement(Node n){
+    public static void hideElement(Node n){
         n.setOpacity(0);
         n.setDisable(true);
         n.setFocusTraversable(false);
         n.setMouseTransparent(true);
     }
-    protected static void showElement(Node n){
+    public static void showElement(Node n){
         n.setOpacity(1);
         n.setDisable(false);
         n.setFocusTraversable(true);
@@ -26,11 +26,11 @@ public class Init {
             return "Manager - Login";
         return "Manager";
     }
-    protected static void formatObj(Node n, double x, double y){
+    public static void formatObj(Node n, double x, double y){
         n.setLayoutX(x);
         n.setLayoutY(y);
     }
-    protected static void updateInit(boolean saveLogin, String user){
+    public static void updateInit(boolean saveLogin, String user){
         try {
             Map<String, String> map = new HashMap<>();
             map.put("save-login",String.valueOf(saveLogin));

@@ -8,14 +8,14 @@ import javafx.stage.Stage;
 import java.util.Map;
 
 public class Screen extends Application {
-    protected static Pane root;
+    public static Pane root;
     private final String title;
-    protected static UserData user;
-    protected static boolean saveLogin;
-    protected static int windowWidth;
+    public static UserData user;
+    public static boolean saveLogin;
+    public static int windowWidth;
     protected static int windowHeight;
-    protected static ResourceLoader resources;
-    protected static String pastUsername;
+    public static ResourceLoader resources;
+    public static String pastUsername;
     //TODO: create logo for window icon
     public Screen(){
         resources = new ResourceLoader();
@@ -49,7 +49,7 @@ public class Screen extends Application {
             root.getChildren().add(LoginScreen.display0());
         }
         else{
-            root.getChildren().add(HomeScreen.display1());
+            HomeScreen.display1();
             HomeScreen.loadFromCache(LoadCache.loadCache());
             Archive.loadArchive();
             Init.updateInit(true, user.userName);

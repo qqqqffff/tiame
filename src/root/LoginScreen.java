@@ -100,7 +100,7 @@ public class LoginScreen {
                     Screen.user.initializeCache();
                     Init.updateInit(saveLogin.isSelected(), userField.getText());
                     Screen.root.getChildren().remove(loginDisplay);
-                    Screen.root.getChildren().add(HomeScreen.display1());
+                    HomeScreen.display1();
                     HomeScreen.loadFromCache(LoadCache.loadCache());
                 }
             }

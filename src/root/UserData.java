@@ -5,7 +5,6 @@ import com.google.gson.Gson;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -13,8 +12,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class UserData {
-    protected String userName;
-    protected String displayName;
+    public String userName;
+    public String displayName;
     protected boolean cacheInit;
     public UserData(String userName){
         this.userName = userName;
@@ -110,7 +109,7 @@ public class UserData {
         service.shutdown();
         return false;
     }
-    protected void setDisplayName(String displayName){
+    public void setDisplayName(String displayName){
         initializeCache();
         this.displayName = displayName;
         updateUserPreferences();

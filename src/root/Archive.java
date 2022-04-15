@@ -17,8 +17,9 @@ import java.util.Map;
 public class Archive {
     private static int currentElements;
     private static boolean builtArchiveHeader;
-    private static ArrayList<Group> currentArchives = new ArrayList<>();
+    private final static ArrayList<Group> currentArchives = new ArrayList<>();
     private final static String archivePath = "src/archive/" + Screen.user.userName + ".json";
+    public final static Group archiveHeader = archiveHeader();
     private static void initArchive(){
         File archive = new File("src/archive");
         if(!archive.exists()) {
@@ -49,7 +50,6 @@ public class Archive {
             Map<?, ?> read = gson.fromJson(reader, Map.class);
             if(read != null) {
                 Map<String, String>[] dataTo = new Map[read.entrySet().size()];
-//                ArrayList<Map<String, String>> dataToMake = new ArrayList<>(read.entrySet().size());
                 for (Map.Entry<?, ?> entry : read.entrySet()) {
                     String type = entry.getKey().toString().chars()
                             .filter(ch -> !Character.isDigit(ch))
@@ -67,12 +67,14 @@ public class Archive {
                     data.put("Order", String.valueOf(order));
                     dataTo[order - 1000] = data;
                 }
-                if(!builtArchiveHeader){
-                    HomeScreen.homeDisplay.getChildren().add(archiveHeader());
-                    builtArchiveHeader = true;
-                }
-                for(Map<String, String> data : dataTo) {
-                    HomeScreen.homeDisplay.getChildren().add(groupGenerateArchiveElement(data));
+                if(HomeScreen.showSideMenu) {
+                    if (!builtArchiveHeader) {
+                        HomeScreen.sideMenu.getChildren().add(archiveHeader);
+                        builtArchiveHeader = true;
+                    }
+                    for (Map<String, String> data : dataTo) {
+                        HomeScreen.sideMenu.getChildren().add(groupGenerateArchiveElement(data));
+                    }
                 }
             }
         }catch(Exception e){
@@ -149,7 +151,7 @@ public class Archive {
     protected static Group groupGenerateArchiveElement(Map<String, String> data){
         Group archive = new Group();
         if(!builtArchiveHeader){
-            HomeScreen.homeDisplay.getChildren().add(archiveHeader());
+            HomeScreen.sideMenu.getChildren().add(archiveHeader);
             builtArchiveHeader = true;
         }
 
@@ -191,9 +193,9 @@ public class Archive {
             return null;
         }
 
-        double x = Screen.windowWidth - 160;
-        double y = Screen.windowHeight - 35 * (10 - currentElements);
-        Init.formatObj(archive,x,y);
+        double x = 10;
+        double y = 720 - 35 * (10 - currentElements);
+        Init.formatObj(archive, x, y);
 
         Delta[] offsets = new Delta[3];
         offsets[0] = new Delta(120,2);
@@ -203,9 +205,9 @@ public class Archive {
 
         Button close = new Button();
         close.setGraphic(Screen.resources.getImage("close"));
-        Init.formatObj(close,offsets[0].getX(),offsets[0].getY());
+        Init.formatObj(close, offsets[0].getX(), offsets[0].getY());
         close.setOnAction(event -> {
-            HomeScreen.homeDisplay.getChildren().remove(archive);
+            HomeScreen.sideMenu.getChildren().remove(archive);
             currentElements--;
             currentArchives.remove(archive);
             clearArchive(id[0] + type[0]);
@@ -217,9 +219,9 @@ public class Archive {
         Button open = new Button("o");
         open.setFont(new Font(10));
         open.setMaxSize(25,25);
-        Init.formatObj(open,offsets[1].getX(),offsets[1].getY());
+        Init.formatObj(open, offsets[1].getX(), offsets[1].getY());
         open.setOnAction(event -> {
-            HomeScreen.homeDisplay.getChildren().remove(archive);
+            HomeScreen.sideMenu.getChildren().remove(archive);
             currentElements--;
             currentArchives.remove(archive);
             clearArchive(id[0] + type[0]);
@@ -231,13 +233,13 @@ public class Archive {
         Text titleText = new Text(title[0]);
         titleText.setFont(new Font(16));
         titleText.setFill(Color.BLACK);
-        Init.formatObj(titleText,offsets[2].getX(), offsets[2].getY());
+        Init.formatObj(titleText, offsets[2].getX(), offsets[2].getY());
         while((titleText.getLayoutBounds().getWidth() > 140)){
             String t = titleText.getText().substring(0,titleText.getText().length() - 4) + "...";
             titleText.setText(t);
         }
 
-        Rectangle base = new Rectangle(150,30);
+        Rectangle base = new Rectangle(145,30);
         base.setFill(Color.WHITE);
         base.setStroke(Color.BLACK);
         base.setStrokeWidth(2.5);
@@ -259,17 +261,19 @@ public class Archive {
     }
     private static Group archiveHeader(){
         Group header = new Group();
-        Init.formatObj(header,Screen.windowWidth - 175,Screen.windowHeight - 360);
+        header.setId("header");
+        Init.formatObj(header,0,350);
 
-        Line l = new Line(0,5,175,5);
+        Line l = new Line(0,5,160,5);
         l.setStroke(Color.BLACK);
         l.setStrokeWidth(2.5);
         header.getChildren().add(l);
 
         Text title = new Text("Archives");
+        title.setId("title");
         title.setFont(new Font(25));
         double x = (title.getLayoutBounds().getWidth()) / 2;
-        Init.formatObj(title,x,0);
+        Init.formatObj(title,x - 10,0);
         header.getChildren().add(title);
 
         return header;
@@ -329,6 +333,27 @@ public class Archive {
             Init.formatObj(g,x,y);
             currentElements++;
         }
+    }
+    public static void buildArchiveDisplay(double initialX){
+        currentElements = 0;
+        if(!builtArchiveHeader){
+            HomeScreen.sideMenu.getChildren().add(archiveHeader);
+            builtArchiveHeader = true;
+        }
+        for(Group g : currentArchives){
+            double y = Screen.windowHeight - 35 * (10 - currentElements);
+            Init.formatObj(g, initialX, y);
+            currentElements++;
+            HomeScreen.sideMenu.getChildren().add(g);
+            System.out.println(g.getId());
+        }
+    }
+    public static void removeArchiveDisplay(){
+        for(Group g : currentArchives){
+            HomeScreen.homeDisplay.getChildren().remove(g);
+        }
+        HomeScreen.homeDisplay.getChildren().remove(archiveHeader);
+        builtArchiveHeader = false;
     }
     protected static boolean insideArchive(int id){
         for(int i : getArchiveIDs()){
