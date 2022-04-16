@@ -1,6 +1,7 @@
 package root;
 
 import com.google.gson.Gson;
+import elements.Element;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.paint.Color;
@@ -81,7 +82,7 @@ public class Archive {
             e.printStackTrace();
         }
     }
-    protected static void updateArchive(Element e){
+    public static void updateArchive(Element e){
         String rawID = e.ID + e.type;
         String title = "";
         Map<String, String> write = new HashMap<>();
@@ -148,7 +149,7 @@ public class Archive {
         }
         return ids;
     }
-    protected static Group groupGenerateArchiveElement(Map<String, String> data){
+    public static Group groupGenerateArchiveElement(Map<String, String> data){
         Group archive = new Group();
         if(!builtArchiveHeader){
             HomeScreen.sideMenu.getChildren().add(archiveHeader);
@@ -347,13 +348,6 @@ public class Archive {
             HomeScreen.sideMenu.getChildren().add(g);
             System.out.println(g.getId());
         }
-    }
-    public static void removeArchiveDisplay(){
-        for(Group g : currentArchives){
-            HomeScreen.homeDisplay.getChildren().remove(g);
-        }
-        HomeScreen.homeDisplay.getChildren().remove(archiveHeader);
-        builtArchiveHeader = false;
     }
     protected static boolean insideArchive(int id){
         for(int i : getArchiveIDs()){

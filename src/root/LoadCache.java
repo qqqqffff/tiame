@@ -1,6 +1,7 @@
 package root;
 
 import com.google.gson.Gson;
+import elements.Element;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -35,7 +36,7 @@ public class LoadCache {
         }
         return cache;
     }
-    protected static void updateCache(Element e){
+    public static void updateCache(Element e){
         String rawID = String.valueOf(e.ID);
         Map<String, String> write = new HashMap<>();
         for (Map.Entry<String, ?> entry : e.generateMetaData().entrySet()) {
@@ -62,7 +63,7 @@ public class LoadCache {
             e1.printStackTrace();
         }
     }
-    protected static ArrayList<Integer> getCacheIds(){
+    public static ArrayList<Integer> getCacheIds(){
         ArrayList<Integer> ids = new ArrayList<>();
         File cache = new File("src/cache/" + Screen.user.userName );
         for(String fileN : Objects.requireNonNull(cache.list())){

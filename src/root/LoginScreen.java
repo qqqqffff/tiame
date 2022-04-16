@@ -1,5 +1,6 @@
 package root;
 
+import events.LoginEvents;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -14,9 +15,9 @@ import java.util.concurrent.Executors;
 
 //TODO: Create Logo for login screen
 public class LoginScreen {
-    protected static Group loginDisplay;
-    protected static Group createAccount;
-    public static Group display0(){
+    public static Group loginDisplay;
+    public static Group createAccount;
+    public static void display0(){
         loginDisplay = new Group();
         loginDisplay.setId("loginDisplay");
 
@@ -48,30 +49,6 @@ public class LoginScreen {
         passFieldLabel.setFont(new Font(15));
         loginDisplay.getChildren().add(passFieldLabel);
 
-        Text failedPassword = new Text("Password field is blank");
-        failedPassword.setId("blank");
-        failedPassword.setFont(new Font(15));
-        Init.formatObj(failedPassword,325,375);
-        failedPassword.setFill(Color.RED);
-        failedPassword.setOpacity(0);
-        loginDisplay.getChildren().add(failedPassword);
-
-        Text failedUser = new Text("Username field is blank");
-        failedUser.setId("blank");
-        failedUser.setFont(new Font(15));
-        Init.formatObj(failedUser,325,350);
-        failedUser.setFill(Color.RED);
-        failedUser.setOpacity(0);
-        loginDisplay.getChildren().add(failedUser);
-
-        Text wrongPass = new Text("Incorrect Username or Password");
-        wrongPass.setId("wrongPass");
-        wrongPass.setFont(new Font(15));
-        Init.formatObj(wrongPass,325,350);
-        wrongPass.setFill(Color.RED);
-        wrongPass.setOpacity(0);
-        loginDisplay.getChildren().add(wrongPass);
-
         Text createdAcc = new Text("Account Successfully Created!");
         createdAcc.setId("successCreate");
         createdAcc.setFont(new Font(15));
@@ -81,8 +58,8 @@ public class LoginScreen {
         loginDisplay.getChildren().add(createdAcc);
 
         CheckBox saveLogin = new CheckBox("Stay Logged In?");
-        Init.formatObj(saveLogin,325,325);
-        saveLogin.setFont(new Font(15));
+        Init.formatObj(saveLogin,325,300);
+        saveLogin.setFont(new Font(12));
         if(Screen.saveLogin){
             saveLogin.setSelected(true);
         }
@@ -96,24 +73,29 @@ public class LoginScreen {
             String pass = passField.getText();
             String userN = userField.getText();
             if(!(pass.equals("") || userN.equals(""))) {
-                if(Screen.user.signInAttempt(userN, pass)) {
+                if(Screen.user.signInAttempt(userN, pass)) { //Success
                     Screen.user.initializeCache();
                     Init.updateInit(saveLogin.isSelected(), userField.getText());
                     Screen.root.getChildren().remove(loginDisplay);
                     HomeScreen.display1();
                     HomeScreen.loadFromCache(LoadCache.loadCache());
+                }else{ //error
+                    LoginEvents error = new LoginEvents(LoginEvents.Event.incorrectInfo);
+                    ExecutorService service = Executors.newFixedThreadPool(1);
+                    service.execute(error);
+                    service.shutdown();
                 }
             }
-            if (userN.equals("")) {
-                ErrorHandling task = new ErrorHandling(1);
+            if (userN.equals("")) { //Blank User
+                LoginEvents error = new LoginEvents(LoginEvents.Event.blankUser);
                 ExecutorService service = Executors.newFixedThreadPool(1);
-                service.execute(task);
+                service.execute(error);
                 service.shutdown();
             }
-            if (pass.equals("")){
-                ErrorHandling task = new ErrorHandling(1);
+            if (pass.equals("")){ //Blank Pass
+                LoginEvents error = new LoginEvents(LoginEvents.Event.blankPass);
                 ExecutorService service = Executors.newFixedThreadPool(1);
-                service.execute(task);
+                service.execute(error);
                 service.shutdown();
             }
         });
@@ -131,7 +113,12 @@ public class LoginScreen {
         });
         loginDisplay.getChildren().add(createAcc);
 
-        return loginDisplay;
+
+        loginDisplay.getChildren().add(blankPass());
+        loginDisplay.getChildren().add(blankUser());
+        loginDisplay.getChildren().add(incorrectInfo());
+
+        Screen.root.getChildren().add(loginDisplay);
     }
     //TODO: update with icons
     private static Group createAccount(){
@@ -257,5 +244,32 @@ public class LoginScreen {
         createAccount.getChildren().add(exit);
 
         return createAccount;
+    }
+    private static Text blankUser(){
+        Text failedUser = new Text("Username field is blank");
+        failedUser.setId("blankU");
+        failedUser.setFont(new Font(15));
+        Init.formatObj(failedUser,325,350);
+        failedUser.setFill(Color.RED);
+        failedUser.setOpacity(0);
+        return failedUser;
+    }
+    private static Text blankPass(){
+        Text failedPass = new Text("Password field is blank");
+        failedPass.setId("blankP");
+        failedPass.setFont(new Font(15));
+        Init.formatObj(failedPass,325,375);
+        failedPass.setFill(Color.RED);
+        failedPass.setOpacity(0);
+        return failedPass;
+    }
+    private static Text incorrectInfo(){
+        Text wrongPass = new Text("Incorrect Username or Password");
+        wrongPass.setId("wrong");
+        wrongPass.setFont(new Font(15));
+        Init.formatObj(wrongPass,325,400);
+        wrongPass.setFill(Color.RED);
+        wrongPass.setOpacity(0);
+        return wrongPass;
     }
 }

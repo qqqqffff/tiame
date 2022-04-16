@@ -1,6 +1,7 @@
 package root;
 
 import com.google.gson.Gson;
+import elements.Timer;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -96,17 +97,10 @@ public class UserData {
         setData(USER);
         boolean success = checkPass(PASS);
         if(success){
-//            System.out.println("Login Successful!");
-//            System.out.println("Credentials: "+this.userName+", SessionID: "+sessionID);
             setData(USER,PASS);
             return true;
         }
         setData(null);
-        System.out.println("Login Unsuccessful");
-        ErrorHandling task = new ErrorHandling(2);
-        ExecutorService service = Executors.newFixedThreadPool(1);
-        service.execute(task);
-        service.shutdown();
         return false;
     }
     public void setDisplayName(String displayName){

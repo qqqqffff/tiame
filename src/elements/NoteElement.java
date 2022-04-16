@@ -1,17 +1,19 @@
-package root;
+package elements;
 
+import elements.Element;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
+import root.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 //TODO: Add Option to archive Note after Title is entered
-public class NoteElement extends Element{
+public class NoteElement extends Element {
     private final TextArea ta;
     private final Button archive;
     private final Button dropDownButton;
@@ -130,7 +132,7 @@ public class NoteElement extends Element{
             data.put("Type", "Note");
             Archive.updateArchive(this);
             HomeScreen.purgeElements(HomeScreen.homeDisplay, generateSuperID(),true);
-            HomeScreen.homeDisplay.getChildren().add(Archive.groupGenerateArchiveElement(data));
+            HomeScreen.sideMenu.getChildren().add(Archive.groupGenerateArchiveElement(data));
         });
         dropDown.getChildren().add(archive);
 
@@ -143,7 +145,7 @@ public class NoteElement extends Element{
     private String generateID() {
         return this.seed + "EN";
     }
-    protected String generateSuperID(){ return this.seed + "N"; }
+    public String generateSuperID(){ return this.seed + "N"; }
     public String getElementID(){
         return element.getId();
     }
@@ -154,19 +156,19 @@ public class NoteElement extends Element{
     }
 
     @Override
-    protected void hideElements() {
+    public void hideElements() {
         Init.hideElement(ta);
         Init.hideElement(archive);
     }
 
     @Override
-    protected void showElements() {
+    public void showElements() {
         Init.showElement(ta);
         Init.showElement(archive);
     }
 
     @Override
-    protected Map<String, String> generateMetaData() {
+    public Map<String, String> generateMetaData() {
         Map<String, String> metaData = new HashMap<>(getSuperElementData());
 
         metaData.put("TextArea",ta.getText());

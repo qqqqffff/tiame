@@ -1,5 +1,7 @@
 package root;
 
+import elements.NoteElement;
+import elements.TimerElement;
 import events.MoveSideMenu;
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -22,7 +24,7 @@ import java.util.concurrent.Executors;
 public class HomeScreen {
     public static Group homeDisplay = new Group();
     public static Group sideMenu = new Group();
-    protected static int currentElements;
+    public static int currentElements;
     protected static boolean showSideMenu;
     private static Delta boundaries;
     //TODO: implement icon view versus text view for showing the side menu
@@ -574,7 +576,7 @@ public class HomeScreen {
 
         return element;
     }
-    protected static void purgeElements(Group element, String id, boolean breakable){
+    public static void purgeElements(Group element, String id, boolean breakable){
         for(int i = 0; i < element.getChildren().size(); i++) {
             if(element.getChildren().get(i).getId() != null){
                 if(element.getChildren().get(i).getId().contains(id)){

@@ -1,9 +1,12 @@
-package root;
+package elements;
 
+import elements.TimerElement;
 import javafx.concurrent.Task;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.text.Text;
+import root.HomeScreen;
+import root.LoadCache;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -15,7 +18,7 @@ public class Timer extends Task<Void> {
     private double time;
     private String id;
     protected double currentTime;
-    protected static ArrayList<Integer> timerSelectors = new ArrayList<>();
+    public static ArrayList<Integer> timerSelectors = new ArrayList<>();
     private boolean interrupted;
     private TimerElement te;
     public Timer(double time, String id, TimerElement te){
@@ -88,12 +91,12 @@ public class Timer extends Task<Void> {
         }
         return time + "m";
     }
-    protected static void initTimerSelectors(){
+    public static void initTimerSelectors(){
         while(timerSelectors.size() < 5){
             timerSelectors.add(0);
         }
     }
-    protected static void setDefaultTimerSelectors(){
+    public static void setDefaultTimerSelectors(){
         initTimerSelectors();
 
         timerSelectors.set(0, 1);
@@ -102,7 +105,7 @@ public class Timer extends Task<Void> {
         timerSelectors.set(3, 1);
         timerSelectors.set(4, 5);
     }
-    protected static void setTimerSelectors(int index, int val){
+    public static void setTimerSelectors(int index, int val){
         if(timerSelectors != null) {
             initTimerSelectors();
         }

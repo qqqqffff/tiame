@@ -1,4 +1,4 @@
-package root;
+package elements;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
@@ -7,6 +7,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import root.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +16,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 //TODO: add text input ability
 //TODO: add ability to shelve (put into side bar) ~ just displays timer
-public class TimerElement extends Element{
+public class TimerElement extends Element {
     protected ArrayList<Integer> timerSelectors;
     private Text timer;
     private Button timeSelectorA;
@@ -34,7 +35,7 @@ public class TimerElement extends Element{
     private final Delta timerStartOffset;
     private final Delta timerPauseOffset;
     private int seed;
-    protected boolean minimizable;
+    public boolean minimizable;
     private Node tempMinimize;
     final Timer[] t;
     long[] time = {0};
@@ -54,7 +55,7 @@ public class TimerElement extends Element{
         this.type = "Timer";
     }
     @Override
-    protected Group create(double x, double y, Map<String, String> metaData) {
+    public Group create(double x, double y, Map<String, String> metaData) {
         if(metaData == null) {
             setID();
         }
@@ -235,7 +236,7 @@ public class TimerElement extends Element{
         return element;
     }
     @Override
-    protected String getElementID() {
+    public String getElementID() {
         return element.getId();
     }
     private void setSeed(int seed){
@@ -245,11 +246,11 @@ public class TimerElement extends Element{
         return seed + "ET";
     }
     @Override
-    protected String generateSuperID(){
+    public String generateSuperID(){
         return seed + "T";
     }
     @Override
-    protected void updatePos(double offsetX, double offsetY) {
+    public void updatePos(double offsetX, double offsetY) {
         Init.formatObj(timer,offsetX + timerTextOffset.getX(),offsetY + timerTextOffset.getY());
         Init.formatObj(timeSelectorA,offsetX + timerSelAOffset.getX(),offsetY + timerSelAOffset.getY());
         Init.formatObj(timeSelectorB,offsetX + timerSelBOffset.getX(),offsetY + timerSelBOffset.getY());
@@ -261,7 +262,7 @@ public class TimerElement extends Element{
     }
 
     @Override
-    protected void hideElements() {
+    public void hideElements() {
         if(minimizable) {
             Init.hideElement(timeSelectorA);
             Init.hideElement(timeSelectorB);
@@ -273,7 +274,7 @@ public class TimerElement extends Element{
     }
 
     @Override
-    protected void showElements() {
+    public void showElements() {
         if(minimizable) {
             Init.showElement(timeSelectorA);
             Init.showElement(timeSelectorB);
@@ -285,7 +286,7 @@ public class TimerElement extends Element{
     }
 
     @Override
-    protected Map<String, String> generateMetaData() {
+    public Map<String, String> generateMetaData() {
         Map<String, String> metaData = new HashMap<>(getSuperElementData());
 
         metaData.put("Time",String.valueOf(this.time[0]));
@@ -304,7 +305,7 @@ public class TimerElement extends Element{
             }
         }
     }
-    protected void updateTime(Long newTime){
+    public void updateTime(Long newTime){
         this.time[0] = newTime;
     }
 }

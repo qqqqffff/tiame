@@ -46,12 +46,12 @@ public class Screen extends Application {
     @Override
     public void start(Stage stage){
         if(!saveLogin) {
-            root.getChildren().add(LoginScreen.display0());
+            LoginScreen.display0();
         }
         else{
             HomeScreen.display1();
-            HomeScreen.loadFromCache(LoadCache.loadCache());
             Archive.loadArchive();
+            HomeScreen.loadFromCache(LoadCache.loadCache());
             Init.updateInit(true, user.userName);
         }
         Scene scene = new Scene(root, Screen.windowWidth, Screen.windowHeight);

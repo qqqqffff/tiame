@@ -1,26 +1,28 @@
-package root;
+package elements;
 
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.text.Text;
+import root.HomeScreen;
+import root.LoadCache;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public abstract class Element {
-    Group element = new Group();
-    protected int ID;
-    protected String type;
-    protected abstract Group create(double x, double y, Map<String, String> metaData);
+    public Group element = new Group();
+    public int ID;
+    public String type;
+    public abstract Group create(double x, double y, Map<String, String> metaData);
     protected abstract String getElementID();
-    protected abstract String generateSuperID();
+    public abstract String generateSuperID();
     protected abstract void updatePos(double offsetX, double offsetY);
     protected abstract void hideElements();
     protected abstract void showElements();
-    protected abstract Map<String, String> generateMetaData();
+    public abstract Map<String, String> generateMetaData();
     protected abstract void parseMetaData(Map<String, String> metaData);
-    protected Map<String, String> getSuperElementData(){
+    public Map<String, String> getSuperElementData(){
         Map<String, String> data = new HashMap<>();
         for(Node n : HomeScreen.homeDisplay.getChildren()){
             if(n.getId() != null){

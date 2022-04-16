@@ -147,7 +147,7 @@ public class Settings {
             Screen.pastUsername = Screen.user.userName;
             Screen.user = new UserData();
             Screen.root.getChildren().remove(HomeScreen.homeDisplay);
-            Screen.root.getChildren().add(LoginScreen.display0());
+            LoginScreen.display0();
         });
         display.getChildren().add(logout);
 
