@@ -10,6 +10,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -65,11 +66,17 @@ public class LoginScreen {
         }
         loginDisplay.getChildren().add(saveLogin);
 
+        LoginEvents[] error = {new LoginEvents()};
         Button signIn = new Button("Login");
         signIn.setId("login");
         Init.formatObj(signIn, 580,250);
         signIn.setMaxSize(50,30);
         signIn.setOnAction(event -> {
+            if(!error[0].isDone()){
+                error[0].cancel();
+            }
+            error[0] = new LoginEvents();
+
             String pass = passField.getText();
             String userN = userField.getText();
             if(!(pass.equals("") || userN.equals(""))) {
@@ -80,24 +87,18 @@ public class LoginScreen {
                     HomeScreen.display1();
                     HomeScreen.loadFromCache(LoadCache.loadCache());
                 }else{ //error
-                    LoginEvents error = new LoginEvents(LoginEvents.Event.incorrectInfo);
-                    ExecutorService service = Executors.newFixedThreadPool(1);
-                    service.execute(error);
-                    service.shutdown();
+                    error[0].addEvent(LoginEvents.Event.incorrectInfo);
                 }
             }
             if (userN.equals("")) { //Blank User
-                LoginEvents error = new LoginEvents(LoginEvents.Event.blankUser);
-                ExecutorService service = Executors.newFixedThreadPool(1);
-                service.execute(error);
-                service.shutdown();
+                error[0].addEvent(LoginEvents.Event.blankUser);
             }
             if (pass.equals("")){ //Blank Pass
-                LoginEvents error = new LoginEvents(LoginEvents.Event.blankPass);
-                ExecutorService service = Executors.newFixedThreadPool(1);
-                service.execute(error);
-                service.shutdown();
+                error[0].addEvent(LoginEvents.Event.blankPass);
             }
+            ExecutorService service = Executors.newFixedThreadPool(1);
+            service.execute(error[0]);
+            service.shutdown();
         });
         signIn.requestFocus();
         loginDisplay.getChildren().add(signIn);
@@ -113,10 +114,9 @@ public class LoginScreen {
         });
         loginDisplay.getChildren().add(createAcc);
 
-
-        loginDisplay.getChildren().add(blankPass());
-        loginDisplay.getChildren().add(blankUser());
-        loginDisplay.getChildren().add(incorrectInfo());
+        loginDisplay.getChildren().add(LoginEvents.blankUser);
+        loginDisplay.getChildren().add(LoginEvents.blankPass);
+        loginDisplay.getChildren().add(LoginEvents.incorrectInfo);
 
         Screen.root.getChildren().add(loginDisplay);
     }
@@ -244,32 +244,5 @@ public class LoginScreen {
         createAccount.getChildren().add(exit);
 
         return createAccount;
-    }
-    private static Text blankUser(){
-        Text failedUser = new Text("Username field is blank");
-        failedUser.setId("blankU");
-        failedUser.setFont(new Font(15));
-        Init.formatObj(failedUser,325,350);
-        failedUser.setFill(Color.RED);
-        failedUser.setOpacity(0);
-        return failedUser;
-    }
-    private static Text blankPass(){
-        Text failedPass = new Text("Password field is blank");
-        failedPass.setId("blankP");
-        failedPass.setFont(new Font(15));
-        Init.formatObj(failedPass,325,375);
-        failedPass.setFill(Color.RED);
-        failedPass.setOpacity(0);
-        return failedPass;
-    }
-    private static Text incorrectInfo(){
-        Text wrongPass = new Text("Incorrect Username or Password");
-        wrongPass.setId("wrong");
-        wrongPass.setFont(new Font(15));
-        Init.formatObj(wrongPass,325,400);
-        wrongPass.setFill(Color.RED);
-        wrongPass.setOpacity(0);
-        return wrongPass;
     }
 }
