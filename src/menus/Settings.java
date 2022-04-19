@@ -4,6 +4,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
+import javafx.scene.input.KeyCode;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -14,14 +15,27 @@ import java.util.ArrayList;
 
 public class Settings {
     private static Group display;
-    public static Node settingsDisplay(){
+    public static Group settingsDisplay(){
         if(display == null){
             generateSettingsDisplay();
         }
         return display;
     }
-    private static Node generateSettingsDisplay(){
+    private static void generateSettingsDisplay(){
         display = new Group();
+        display.setOnKeyPressed(event -> {
+            if(event.getCode().equals(KeyCode.ESCAPE)){
+                HomeScreen.homeDisplay.getChildren().remove(display);
+                for(Node n : HomeScreen.homeDisplay.getChildren()){
+                    n.setEffect(null);
+                    n.setDisable(false);
+                }
+                for(Node n : HomeScreen.sideMenu.getChildren()){
+                    n.setEffect(null);
+                    n.setDisable(false);
+                }
+            }
+        });
 
         boolean[] displayingFields = {false, false};
 
@@ -54,6 +68,10 @@ public class Settings {
         exit.setOnAction(event -> {
             HomeScreen.homeDisplay.getChildren().remove(display);
             for(Node n : HomeScreen.homeDisplay.getChildren()){
+                n.setEffect(null);
+                n.setDisable(false);
+            }
+            for(Node n : HomeScreen.sideMenu.getChildren()){
                 n.setEffect(null);
                 n.setDisable(false);
             }
@@ -143,16 +161,17 @@ public class Settings {
         Init.formatObj(logout,defx + 5,defy + 450);
         logout.setFont(new Font(12));
         logout.setOnAction(event -> {
-            Init.updateInit(Screen.saveLogin, Screen.user.userName);
+            Init.updateInit(false, Screen.user.userName);
+            Screen.saveLogin = false;
             Screen.pastUsername = Screen.user.userName;
             Screen.user = new UserData();
             Screen.root.getChildren().remove(HomeScreen.homeDisplay);
+            Screen.root.getChildren().remove(HomeScreen.sideMenu);
             LoginScreen.display0();
         });
         display.getChildren().add(logout);
 
 
         //TODO: implement changing default timer increments
-        return display;
     }
 }

@@ -3,6 +3,7 @@ package events;
 import javafx.concurrent.Task;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import root.Init;
 import root.Screen;
 
 public class MoveSideMenu extends Task<Void> {
@@ -28,12 +29,12 @@ public class MoveSideMenu extends Task<Void> {
                                 n.setLayoutX(n.getLayoutX() - 1);
                             }
                         }
-                        else{
+                        else if(!n.getId().equals("archive")){
                             double op = 1 - ((i + 1 - initialPos) / (80.0));
                             if(n.getId().equals("header")){
                                 for(Node m : ((Group) n).getChildren()){
                                     if(m.getId() != null){
-                                        if(m.getId().equals("title")){
+                                        if(m.getId().equals("title_archive")){
                                             m.setOpacity(op);
                                         }
                                     }
@@ -57,12 +58,12 @@ public class MoveSideMenu extends Task<Void> {
                                 n.setLayoutX(n.getLayoutX() + 1);
                             }
                         }
-                        else{
+                        else if(!n.getId().equals("archive")){
                             double op = -1 * ((i + 1 - initialPos) / (80.0));
                             if(n.getId().equals("header")){
                                 for(Node m : ((Group) n).getChildren()){
                                     if(m.getId() != null){
-                                        if(m.getId().equals("title")){
+                                        if(m.getId().equals("title_archive")){
                                             m.setOpacity(op);
                                         }
                                     }
@@ -80,6 +81,11 @@ public class MoveSideMenu extends Task<Void> {
             if(n.getId() != null){
                 if(n.getId().equals("menu")){
                     n.setDisable(false);
+                }
+                if(pos){
+                    if(n.getId().equals("archive")){
+                        Init.showElement(n);
+                    }
                 }
             }
         }

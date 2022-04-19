@@ -1,6 +1,5 @@
 package elements;
 
-import elements.Element;
 import javafx.scene.Group;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
@@ -132,7 +131,7 @@ public class NoteElement extends Element {
             data.put("Type", "Note");
             Archive.updateArchive(this);
             HomeScreen.purgeElements(HomeScreen.homeDisplay, generateSuperID(),true);
-            HomeScreen.sideMenu.getChildren().add(Archive.groupGenerateArchiveElement(data));
+            HomeScreen.sideMenu.getChildren().add(Archive.generateArchiveElement(data));
         });
         dropDown.getChildren().add(archive);
 

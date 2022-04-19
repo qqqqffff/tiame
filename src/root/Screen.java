@@ -13,7 +13,7 @@ public class Screen extends Application {
     public static UserData user;
     public static boolean saveLogin;
     public static int windowWidth;
-    protected static int windowHeight;
+    public static int windowHeight;
     public static ResourceLoader resources;
     public static String pastUsername;
     //TODO: create logo for window icon

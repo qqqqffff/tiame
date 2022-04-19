@@ -3,24 +3,32 @@ package root;
 import com.google.gson.Gson;
 import elements.Element;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.GaussianBlur;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import menus.ArchiveMenu;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+
+//TODO: figure out how to determine when inside the archive menu (adding back creates gaussian blur and disables the element)
+//TODO: deletion from inside the menu (reordering)
+//TODO: figure out bug with removing an element from the queue deletes all other elements
 public class Archive {
     private static int currentElements;
     private static boolean builtArchiveHeader;
     private final static ArrayList<Group> currentArchives = new ArrayList<>();
     private final static String archivePath = "src/archive/" + Screen.user.userName + ".json";
     public final static Group archiveHeader = archiveHeader();
+    public static boolean insideArchiveMenu;
     private static void initArchive(){
         File archive = new File("src/archive");
         if(!archive.exists()) {
@@ -39,7 +47,6 @@ public class Archive {
             e.printStackTrace();
         }
     }
-    //TODO: figure out how to implement an order
     protected static void loadArchive(){
         if(!(new File(archivePath).exists())) {
             initArchive();
@@ -74,7 +81,11 @@ public class Archive {
                         builtArchiveHeader = true;
                     }
                     for (Map<String, String> data : dataTo) {
-                        HomeScreen.sideMenu.getChildren().add(groupGenerateArchiveElement(data));
+                        HomeScreen.sideMenu.getChildren().add(generateArchiveElement(data));
+                    }
+                }else{
+                    for (Map<String, String> data : dataTo) {
+                        generateArchiveElement(data);
                     }
                 }
             }
@@ -149,17 +160,14 @@ public class Archive {
         }
         return ids;
     }
-    public static Group groupGenerateArchiveElement(Map<String, String> data){
+    public static Group generateArchiveElement(Map<String, String> data){
         Group archive = new Group();
-        if(!builtArchiveHeader){
-            HomeScreen.sideMenu.getChildren().add(archiveHeader);
-            builtArchiveHeader = true;
-        }
 
         final String[] id = {""};
         final String[] title = {""};
         final String[] type = {""};
         final String[] order = {""};
+        final double[] width = {145};
         boolean orderSet = false;
         for(Map.Entry<String, String> entry: data.entrySet()){
             if(entry.getKey().equals("Title")){
@@ -171,6 +179,8 @@ public class Archive {
             }else if(entry.getKey().equals("Order")){
                 order[0] = entry.getValue();
                 orderSet = true;
+            }else if(entry.getKey().equals("Width")){
+                width[0] = Double.parseDouble(entry.getValue());
             }
         }
 
@@ -208,12 +218,36 @@ public class Archive {
         close.setGraphic(Screen.resources.getImage("close"));
         Init.formatObj(close, offsets[0].getX(), offsets[0].getY());
         close.setOnAction(event -> {
-            HomeScreen.sideMenu.getChildren().remove(archive);
             currentElements--;
             currentArchives.remove(archive);
             clearArchive(id[0] + type[0]);
             LoadCache.clearCache(Integer.parseInt(id[0]));
-            reformatArchives(deriveOrder(archive));
+            for(Node n : HomeScreen.sideMenu.getChildren()){
+                if(n.getId() != null){
+                    if(n.getId().equals(archive.getId())){
+                        HomeScreen.sideMenu.getChildren().remove(n);
+                        break;
+                    }
+                }
+            }
+            if(insideArchiveMenu) {
+                for(Node n : HomeScreen.homeDisplay.getChildren()) {
+                    if(n.getId() != null) {
+                        if(n.getId().equals("ArchiveMenu")) {
+                            for (Node m : ((Group) n).getChildren()) {
+                                if (m.getId() != null) {
+                                    if (m.getId().equals("contents")) {
+                                        ((ScrollPane) m).setContent(buildArchiveMenuDisplay());
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            updateArchiveList(deriveOrder(archive));
+            reformatArchives();
         });
 
         //TODO: create icon for open
@@ -227,7 +261,8 @@ public class Archive {
             currentArchives.remove(archive);
             clearArchive(id[0] + type[0]);
             LoadCache.buildFromCache(Integer.parseInt(id[0]));
-            reformatArchives(deriveOrder(archive));
+            updateArchiveList(deriveOrder(archive));
+            reformatArchives();
         });
 
 
@@ -235,12 +270,12 @@ public class Archive {
         titleText.setFont(new Font(16));
         titleText.setFill(Color.BLACK);
         Init.formatObj(titleText, offsets[2].getX(), offsets[2].getY());
-        while((titleText.getLayoutBounds().getWidth() > 140)){
+        while((titleText.getLayoutBounds().getWidth() > width[0] - 30)){
             String t = titleText.getText().substring(0,titleText.getText().length() - 4) + "...";
             titleText.setText(t);
         }
 
-        Rectangle base = new Rectangle(145,30);
+        Rectangle base = new Rectangle(width[0],30);
         base.setFill(Color.WHITE);
         base.setStroke(Color.BLACK);
         base.setStrokeWidth(2.5);
@@ -265,22 +300,39 @@ public class Archive {
         header.setId("header");
         Init.formatObj(header,0,350);
 
-        Line l = new Line(0,5,160,5);
-        l.setStroke(Color.BLACK);
-        l.setStrokeWidth(2.5);
-        header.getChildren().add(l);
-
         Text title = new Text("Archives");
-        title.setId("title");
+        title.setId("title_archive");
         title.setFont(new Font(25));
+        title.setOnMouseEntered(event -> title.setFill(Color.GREY));
+        title.setOnMouseExited(event -> title.setFill(Color.BLACK));
+        title.setOnMouseClicked(event -> {
+            for (Node n : HomeScreen.homeDisplay.getChildren()) {
+                n.setEffect(new GaussianBlur());
+                n.setDisable(true);
+            }
+            for(Node n : HomeScreen.sideMenu.getChildren()){
+                n.setEffect(new GaussianBlur());
+                n.setDisable(true);
+            }
+            Archive.insideArchiveMenu = true;
+            HomeScreen.homeDisplay.getChildren().add(ArchiveMenu.getArchiveDisplay());
+        });
         double x = (title.getLayoutBounds().getWidth()) / 2;
         Init.formatObj(title,x - 10,0);
         header.getChildren().add(title);
 
         return header;
     }
-    private static void reformatArchives(int index){
-        //TODO: figure out how to animate them going up
+    //TODO: figure out how to animate them going up
+    private static void reformatArchives(){
+        currentElements = 0;
+        for(Group g : currentArchives){
+            double y = 720 - 35 * (10 - currentElements);
+            Init.formatObj(g,10,y);
+            currentElements++;
+        }
+    }
+    private static void updateArchiveList(int index){
         Gson gson = new Gson();
         try{
             BufferedReader reader = new BufferedReader(new FileReader(archivePath));
@@ -326,28 +378,54 @@ public class Archive {
         }catch(Exception e){
             e.printStackTrace();
         }
-
-        currentElements = 0;
-        for(Group g : currentArchives){
-            double x = Screen.windowWidth - 160;
-            double y = Screen.windowHeight - 35 * (10 - currentElements);
-            Init.formatObj(g,x,y);
-            currentElements++;
-        }
     }
-    public static void buildArchiveDisplay(double initialX){
+    public static void buildArchiveDisplay(){
         currentElements = 0;
         if(!builtArchiveHeader){
             HomeScreen.sideMenu.getChildren().add(archiveHeader);
             builtArchiveHeader = true;
         }
         for(Group g : currentArchives){
-            double y = Screen.windowHeight - 35 * (10 - currentElements);
-            Init.formatObj(g, initialX, y);
+            double y = 720 - 35 * (10 - currentElements);
+            Init.formatObj(g, 10, y);
             currentElements++;
             HomeScreen.sideMenu.getChildren().add(g);
-            System.out.println(g.getId());
         }
+    }
+    public static Group buildArchiveMenuDisplay(){
+        Group allArchives = new Group();
+        Gson gson = new Gson();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(archivePath));
+            Map<?, ?> read = gson.fromJson(reader, Map.class);
+            if (read != null) {
+                Map<String, String>[] dataTo = new Map[read.entrySet().size()];
+                for (Map.Entry<?, ?> entry : read.entrySet()) {
+                    String type = entry.getKey().toString().chars()
+                            .filter(ch -> !Character.isDigit(ch))
+                            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                            .toString();
+                    int order = Integer.parseInt(entry.getValue().toString().substring(0, 4));
+                    String id = entry.getKey().toString().chars()
+                            .filter(Character::isDigit)
+                            .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                            .toString();
+                    Map<String, String> data = new HashMap<>();
+                    data.put("Title", entry.getValue().toString().substring(4));
+                    data.put("ID", id);
+                    data.put("Type", type);
+                    data.put("Order", String.valueOf(order));
+                    data.put("Width", String.valueOf(200));
+                    dataTo[order - 1000] = data;
+                }
+                for(Map<String, String> data : dataTo){
+                    allArchives.getChildren().add(generateArchiveElement(data));
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return allArchives;
     }
     protected static boolean insideArchive(int id){
         for(int i : getArchiveIDs()){

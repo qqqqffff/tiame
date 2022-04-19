@@ -14,6 +14,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import menus.ArchiveMenu;
 import menus.Settings;
 
 import java.util.ArrayList;
@@ -27,6 +28,7 @@ public class HomeScreen {
     public static int currentElements;
     protected static boolean showSideMenu;
     private static Delta boundaries;
+    private static boolean firstTimeBuild;
     //TODO: implement icon view versus text view for showing the side menu
     public static void display1(){
         Delta[] offsets = new Delta[10];
@@ -36,12 +38,15 @@ public class HomeScreen {
 
         //TODO: set as default on init
         Screen.user.updateUserPreferences();
-        if(showSideMenu) Init.formatObj(sideMenu, offsets[0].getX(), offsets[0].getY());
+        if(showSideMenu){
+            Init.formatObj(sideMenu, offsets[0].getX(), offsets[0].getY());
+            firstTimeBuild = true;
+        }
         else             Init.formatObj(sideMenu, offsets[1].getX(), offsets[1].getY());
 
         String userName = Screen.user.displayName;
         boundaries = new Delta(Screen.windowWidth - 160,50);
-        int x, y;
+        int x;
 
 
         Line sideMenuLine =  new Line(0, 0, 0, Screen.windowHeight);
@@ -61,13 +66,38 @@ public class HomeScreen {
         homeDisplay.getChildren().add(welcomeText);
         Init.formatObj(welcomeText,((Screen.windowWidth - welcomeText.getLayoutBounds().getWidth())/ 2),35);
 
+        Button archiveButton = new Button("A");
+        archiveButton.setId("archive");
+        archiveButton.setGraphic(null); //TODO: Big Capital A for Archive Menu
+        archiveButton.setFont(new Font(20)); //Temporary
+        x = ((80 - 50) / 2);
+        Init.formatObj(archiveButton, x, 300);
+        if(showSideMenu) {
+            Init.hideElement(archiveButton);
+        }
+        archiveButton.setMaxSize(50,50);
+        archiveButton.setMinSize(50,50);
+        archiveButton.setOnAction(event -> {
+            for (Node n : homeDisplay.getChildren()) {
+                n.setEffect(new GaussianBlur());
+                n.setDisable(true);
+            }
+            for(Node n : sideMenu.getChildren()){
+                n.setEffect(new GaussianBlur());
+                n.setDisable(true);
+            }
+            Archive.insideArchiveMenu = true;
+            homeDisplay.getChildren().add(ArchiveMenu.getArchiveDisplay());
+        });
+        sideMenu.getChildren().add(archiveButton);
+
         Button addElement = new Button();
         addElement.setId("add");
         addElement.setGraphic(Screen.resources.getImage("new"));
         addElement.setMaxSize(50,50);
         addElement.setMinSize(50,50);
         x = (int) ((Screen.windowWidth - sideMenu.getLayoutX() - 50) / 2);
-        Init.formatObj(addElement,x,90);
+        Init.formatObj(addElement, x,90);
         addElement.setTextFill(Color.GREY);
         addElement.setOnAction(event -> homeDisplay.getChildren().add(generateElement(null)));
         sideMenu.getChildren().add(addElement);
@@ -75,21 +105,23 @@ public class HomeScreen {
         Button sideMenuButton = new Button();
         sideMenuButton.setId("menu");
         sideMenuButton.setGraphic(Screen.resources.getImage("menu_open"));
-        sideMenuButton.setTextFill(Color.GREY);
         sideMenuButton.setOnAction(event -> {
             sideMenuButton.setDisable(true);
             ExecutorService mvService = Executors.newFixedThreadPool(1);
             MoveSideMenu mv = new MoveSideMenu(sideMenu, showSideMenu);
             if(!showSideMenu) {
+                if(!firstTimeBuild){
+                    Archive.buildArchiveDisplay();
+                    firstTimeBuild = true;
+                }
+                Init.hideElement(archiveButton);
                 showSideMenu = true;
                 sideMenuButton.setGraphic(Screen.resources.getImage("menu"));
                 boundaries.setX(Screen.windowWidth - 80);
-                //TODO: phase in display
-//                Archive.buildArchiveDisplay(sideMenu.getLayoutX());
             }else{
                 showSideMenu = false;
                 sideMenuButton.setGraphic(Screen.resources.getImage("menu_open"));
-                boundaries.setX(Screen.windowWidth - 175);
+                boundaries.setX(Screen.windowWidth - 160);
             }
             Screen.user.updateUserPreferences();
             mvService.execute(mv);
@@ -100,6 +132,12 @@ public class HomeScreen {
         sideMenuButton.setMinSize(50,50);
         sideMenu.getChildren().add(sideMenuButton);
 
+        //TODO: Automatic resizing (in move sidemenu)
+        Line l = new Line(0,355,160,355);
+        l.setStroke(Color.BLACK);
+        l.setStrokeWidth(2.5);
+        sideMenu.getChildren().add(l);
+
         Button settingsMenu = new Button();
         settingsMenu.setGraphic(Screen.resources.getImage("settings"));
         x = Screen.windowWidth - 30;
@@ -107,6 +145,10 @@ public class HomeScreen {
         settingsMenu.setTextFill(Color.GREY);
         settingsMenu.setOnAction(event -> {
             for (Node n : homeDisplay.getChildren()) {
+                n.setEffect(new GaussianBlur());
+                n.setDisable(true);
+            }
+            for(Node n : HomeScreen.sideMenu.getChildren()){
                 n.setEffect(new GaussianBlur());
                 n.setDisable(true);
             }

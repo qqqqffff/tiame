@@ -10,7 +10,6 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -85,6 +84,7 @@ public class LoginScreen {
                     Init.updateInit(saveLogin.isSelected(), userField.getText());
                     Screen.root.getChildren().remove(loginDisplay);
                     HomeScreen.display1();
+                    Archive.loadArchive();
                     HomeScreen.loadFromCache(LoadCache.loadCache());
                 }else{ //error
                     error[0].addEvent(LoginEvents.Event.incorrectInfo);
